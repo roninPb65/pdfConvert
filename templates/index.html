@@ -3,1368 +3,722 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Label Generator — Avery 5160</title>
+<title>PDF Intelligence — Powered by Groq AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg:#0b0d14; --surface:#13151f; --surface2:#1c1f2e; --surface3:#242840;
-  --border:#2a2e45; --border2:#363c58;
-  --accent:#5b6af0; --accent2:#818cf8; --accent3:#a5b4fc;
-  --success:#22c55e; --danger:#ef4444; --warn:#f59e0b;
-  --text:#e4e8f5; --muted:#8892b0; --subtle:#4a5270;
-  --radius:10px; --radius-lg:14px;
-  --shadow:0 4px 24px rgba(0,0,0,.4);
-}
-body { background:var(--bg); color:var(--text); font-family:'DM Sans',system-ui,sans-serif; min-height:100vh; font-size:14px; }
+  :root {
+    --bg: #06060f;
+    --surface: #0d0d1a;
+    --card: #111122;
+    --border: #1e1e35;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --success: #10b981;
+    --error: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --glow: rgba(124, 58, 237, 0.15);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    animation: drift 8s ease-in-out infinite alternate;
+  }
+  @keyframes drift { from { transform: translate(0,0); } to { transform: translate(-60px,60px); } }
 
-/* HEADER */
-header {
-  background:linear-gradient(135deg,#0f1035 0%,#1a1b4b 60%,#0f1035 100%);
-  border-bottom:1px solid var(--border);
-  padding:18px 36px; display:flex; align-items:center; gap:16px;
-  position:sticky; top:0; z-index:100;
-}
-header .logo { width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:grid;place-items:center;font-size:20px;flex-shrink:0; }
-header h1 { font-size:20px;font-weight:700;letter-spacing:-.3px; }
-header p  { font-size:12px;color:var(--muted);margin-top:1px; }
-.version-tag { margin-left:auto;background:var(--surface3);border:1px solid var(--border2);color:var(--accent3);font-size:11px;font-family:'DM Mono',monospace;padding:3px 10px;border-radius:20px; }
+  .container { max-width: 960px; margin: 0 auto; padding: 60px 24px 100px; position: relative; z-index: 1; }
 
-/* LAYOUT */
-.app { display:grid;grid-template-columns:340px 1fr;gap:24px;max-width:1400px;margin:0 auto;padding:28px 24px;align-items:start; }
-.panel { display:flex;flex-direction:column;gap:16px; }
+  /* ── Header ── */
+  header { text-align: center; margin-bottom: 56px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 100px; padding: 6px 16px;
+    font-size: 11px; font-family: 'DM Mono', monospace;
+    color: #a78bfa; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px;
+  }
+  .badge::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: #7c3aed; box-shadow: 0 0 8px #7c3aed; animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  h1 {
+    font-family: 'Syne', sans-serif; font-size: clamp(36px,6vw,58px);
+    font-weight: 800; line-height: 1.1; letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #e2e8f0 0%, #a78bfa 50%, #06b6d4 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 16px;
+  }
+  .subtitle { font-size: 16px; color: var(--muted); font-weight: 300; max-width: 500px; margin: 0 auto; line-height: 1.6; }
 
-/* CARD */
-.card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden; }
-.card-head { padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--surface2); }
-.card-head h2 { font-size:12px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--muted); }
-.card-head .icon { font-size:15px; }
-.card-body { padding:18px 20px; }
+  /* ── Card ── */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 36px; margin-bottom: 24px;
+    position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(124,58,237,0.03) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+    margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+  }
+  .card-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-/* UPLOAD ZONE */
-.drop-zone { border:2px dashed var(--border2);border-radius:var(--radius);padding:26px 16px;text-align:center;cursor:pointer;transition:all .2s;position:relative; }
-.drop-zone:hover,.drop-zone.drag-over { border-color:var(--accent);background:rgba(91,106,240,.05); }
-.drop-zone input[type=file] { position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%; }
-.drop-zone .dz-icon { font-size:30px;margin-bottom:8px;opacity:.7; }
-.drop-zone .dz-title { font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px; }
-.drop-zone .dz-sub { font-size:11px;color:var(--muted);line-height:1.6; }
-.file-types { display:flex;gap:6px;justify-content:center;margin-top:8px; }
-.file-type-badge { background:var(--surface3);border:1px solid var(--border2);border-radius:4px;font-size:10px;font-family:'DM Mono',monospace;padding:2px 7px;color:var(--accent3); }
-#file-name { margin-top:8px;font-size:12px;color:var(--accent2);text-align:center;font-weight:500;display:none;padding:5px 10px;background:rgba(91,106,240,.1);border-radius:6px; }
+  /* ── Inputs ── */
+  .input-label { display: block; font-size: 12px; font-family: 'DM Mono', monospace; color: var(--muted); margin-bottom: 8px; letter-spacing: 0.05em; }
+  .input-field {
+    width: 100%; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; color: var(--text);
+    font-family: 'DM Mono', monospace; font-size: 13px; transition: all 0.2s; outline: none;
+  }
+  .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
+  .input-hint { font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .input-hint a { color: #a78bfa; text-decoration: none; }
+  .input-hint a:hover { text-decoration: underline; }
 
-/* FORM FIELDS */
-.field { display:flex;flex-direction:column;gap:5px; }
-.field label { font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px; }
-.field input,.field select { background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:8px 12px;font-size:13px;font-family:inherit;outline:none;transition:border-color .15s;width:100%; }
-.field input:focus,.field select:focus { border-color:var(--accent); }
-.field textarea { background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:8px 12px;font-size:13px;font-family:inherit;outline:none;width:100%;resize:vertical;min-height:70px;line-height:1.5; }
-.field textarea:focus { border-color:var(--accent); }
-.row2 { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
-.settings-grid { display:flex;flex-direction:column;gap:11px; }
-.sep { border:none;border-top:1px solid var(--border);margin:4px 0; }
+  /* ── Drop zone ── */
+  .drop-zone {
+    border: 2px dashed var(--border); border-radius: 16px; padding: 48px 24px;
+    text-align: center; cursor: pointer; transition: all 0.3s;
+    background: var(--surface); position: relative; overflow: hidden;
+  }
+  .drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: rgba(124,58,237,0.05); box-shadow: 0 0 30px rgba(124,58,237,0.1); }
+  .drop-zone.has-file { border-color: var(--success); background: rgba(16,185,129,0.05); }
+  .drop-icon { font-size: 48px; margin-bottom: 16px; display: block; transition: transform 0.3s; }
+  .drop-zone:hover .drop-icon { transform: translateY(-4px); }
+  .drop-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .drop-sub { font-size: 13px; color: var(--muted); }
+  .drop-sub span { color: #a78bfa; cursor: pointer; text-decoration: underline; }
+  #fileInput { display: none; }
+  .file-info { display: none; align-items: center; gap: 12px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 12px 16px; margin-top: 16px; font-size: 13px; }
+  .file-info.show { display: flex; }
+  .file-name { font-family: 'DM Mono', monospace; color: var(--success); flex: 1; }
+  .file-remove { cursor: pointer; color: var(--muted); font-size: 18px; transition: color 0.2s; }
+  .file-remove:hover { color: var(--error); }
 
-/* TOGGLE */
-.toggle-row { display:flex;align-items:center;justify-content:space-between;gap:8px; }
-.toggle-row span { font-size:13px;color:var(--text); }
-.toggle { width:38px;height:21px;background:var(--border2);border-radius:11px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;border:none;outline:none; }
-.toggle.on { background:var(--accent); }
-.toggle::after { content:'';position:absolute;left:3px;top:3px;width:15px;height:15px;background:#fff;border-radius:50%;transition:transform .2s; }
-.toggle.on::after { transform:translateX(17px); }
+  /* ── Buttons ── */
+  .btn-process {
+    width: 100%; padding: 18px;
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    border: none; border-radius: 12px; color: white;
+    font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700;
+    letter-spacing: 0.02em; cursor: pointer; transition: all 0.3s;
+    position: relative; overflow: hidden; margin-top: 24px;
+  }
+  .btn-process::before {
+    content: ''; position: absolute; top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.5s;
+  }
+  .btn-process:hover:not(:disabled)::before { left: 100%; }
+  .btn-process:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,58,237,0.4); }
+  .btn-process:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* BUTTONS */
-.btn { display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:inherit;white-space:nowrap; }
-.btn-primary { background:var(--accent);color:#fff;width:100%;justify-content:center; }
-.btn-primary:hover { background:#4a59e0; }
-.btn-primary:disabled { background:var(--surface3);color:var(--subtle);cursor:not-allowed; }
-.btn-success { background:var(--success);color:#fff; }
-.btn-success:hover { background:#16a34a; }
-.btn-outline { background:transparent;color:var(--accent2);border:1px solid var(--border2); }
-.btn-outline:hover { border-color:var(--accent);background:rgba(91,106,240,.08); }
-.btn-sm { padding:6px 12px;font-size:12px; }
-.btn-icon { padding:5px;border-radius:6px;background:var(--surface3);color:var(--muted);border:1px solid var(--border);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;font-family:inherit; }
-.btn-icon:hover { color:var(--text);border-color:var(--border2); }
+  /* ── Progress ── */
+  #progressSection { display: none; }
+  #progressSection.show { display: block; }
+  .progress-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .progress-label { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+  .progress-pct { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--accent2); }
+  .progress-bar-bg { background: var(--surface); border-radius: 100px; height: 6px; overflow: hidden; margin-bottom: 16px; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #7c3aed, #06b6d4); border-radius: 100px; transition: width 0.5s ease; width: 0%; }
+  .status-steps { display: flex; gap: 8px; flex-wrap: wrap; }
+  .step { display: flex; align-items: center; gap: 6px; font-size: 11px; font-family: 'DM Mono', monospace; padding: 4px 10px; border-radius: 100px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); transition: all 0.3s; }
+  .step.active { border-color: var(--accent); color: #a78bfa; background: rgba(124,58,237,0.1); }
+  .step.done { border-color: var(--success); color: var(--success); background: rgba(16,185,129,0.08); }
+  .step-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .step.active .step-dot { animation: pulse 1s infinite; }
 
-/* ALERTS */
-.alert { border-radius:8px;padding:9px 13px;font-size:12px;display:none;line-height:1.5; }
-.alert-error   { background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5; }
-.alert-success { background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#86efac; }
-.alert-warn    { background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:#fcd34d; }
+  /* ── Quick summary strip ── */
+  #summaryStrip { display: none; }
+  #summaryStrip.show { display: block; }
+  .strip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 8px; }
+  .strip-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; }
+  .strip-chip-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 6px; }
+  .strip-chip-value { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; }
+  .summary-quote { font-size: 13px; line-height: 1.7; color: #94a3b8; background: var(--surface); border-left: 3px solid var(--accent); padding: 14px 18px; border-radius: 0 10px 10px 0; margin-top: 16px; }
 
-/* PROGRESS */
-#progress-wrap { display:none;margin-top:10px; }
-.progress-bg { background:var(--surface3);border-radius:4px;height:5px;overflow:hidden; }
-.progress-fill { height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;width:0;transition:width .3s; }
-#progress-label { font-size:11px;color:var(--muted);margin-top:4px; }
+  /* ── Tab bar ── */
+  #groupedView { display: none; }
+  #groupedView.show { display: block; }
+  .tab-bar { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 4px; margin-bottom: 24px; }
+  .tab-btn {
+    flex: 1; padding: 10px 8px; border: none; background: transparent;
+    border-radius: 10px; color: var(--muted); font-family: 'Syne', sans-serif;
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    letter-spacing: 0.03em;
+  }
+  .tab-btn.active { background: var(--accent); color: white; box-shadow: 0 4px 15px rgba(124,58,237,0.3); }
+  .tab-btn:hover:not(.active) { color: var(--text); background: var(--border); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
 
-/* PREVIEW PANEL */
-#preview-panel { display:none; }
-.preview-header { display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px; }
-.preview-title { display:flex;align-items:center;gap:10px; }
-.preview-title h2 { font-size:16px;font-weight:700; }
-.badge { background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px; }
-.preview-actions { display:flex;gap:8px;flex-wrap:wrap; }
+  /* ── Page groups ── */
+  .page-group { margin-bottom: 16px; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .page-group-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; background: var(--surface); cursor: pointer;
+    transition: background 0.2s; user-select: none;
+  }
+  .page-group-header:hover { background: rgba(124,58,237,0.08); }
+  .page-group-header.open { background: rgba(124,58,237,0.1); border-bottom: 1px solid var(--border); }
+  .page-group-title { display: flex; align-items: center; gap: 12px; }
+  .page-badge {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    color: white; border-radius: 8px; padding: 4px 12px;
+    font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500;
+  }
+  .page-preview { font-size: 12px; color: var(--muted); max-width: 500px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .page-tags { display: flex; gap: 6px; align-items: center; }
+  .mini-tag { font-size: 10px; font-family: 'DM Mono', monospace; padding: 2px 8px; border-radius: 100px; border: 1px solid var(--border); color: var(--muted); }
+  .chevron { color: var(--muted); font-size: 12px; transition: transform 0.3s; }
+  .page-group-header.open .chevron { transform: rotate(180deg); }
+  .page-group-body { padding: 20px; background: var(--card); display: none; }
+  .page-group-body.open { display: block; }
+  .page-text { font-size: 12px; line-height: 1.8; color: #94a3b8; font-family: 'DM Mono', monospace; white-space: pre-wrap; background: var(--surface); padding: 16px; border-radius: 10px; max-height: 200px; overflow-y: auto; margin-bottom: 16px; }
+  .page-facts { display: flex; flex-direction: column; gap: 8px; }
+  .page-fact-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 14px; background: var(--surface); border-radius: 8px; border-left: 3px solid var(--accent); }
+  .fact-cat { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--accent2); text-transform: uppercase; white-space: nowrap; margin-top: 2px; min-width: 70px; }
+  .fact-text { font-size: 12px; color: var(--text); line-height: 1.5; }
+  .page-entities-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .entity-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 100px; padding: 5px 12px; font-size: 11px;
+  }
+  .entity-pill-name { color: var(--text); font-weight: 500; }
+  .entity-pill-type { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 10px; }
+  .section-mini-title { font-size: 11px; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; margin-top: 16px; }
 
-/* STATS */
-.stats { display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px; }
-.stat { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:9px 14px;text-align:center;flex:1;min-width:70px; }
-.stat .val { font-size:18px;font-weight:700;color:var(--accent2);font-family:'DM Mono',monospace; }
-.stat .lbl { font-size:10px;color:var(--muted);margin-top:1px;text-transform:uppercase;letter-spacing:.4px; }
+  /* ── Category groups ── */
+  .cat-group { margin-bottom: 20px; }
+  .cat-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .cat-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
+  .cat-count { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 2px 10px; }
+  .cat-facts-grid { display: flex; flex-direction: column; gap: 8px; }
+  .cat-fact-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; transition: border-color 0.2s; }
+  .cat-fact-card:hover { border-color: var(--accent); }
+  .cat-fact-text { font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 6px; }
+  .cat-fact-meta { display: flex; gap: 10px; font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); }
 
-/* TOOLBAR */
-.toolbar { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center; }
-.toolbar .search-input { flex:1;min-width:160px;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 13px;font-size:13px;font-family:inherit;outline:none; }
-.toolbar .search-input:focus { border-color:var(--accent); }
-.toolbar select { background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;outline:none; }
-.select-info { font-size:11px;color:var(--muted);margin-bottom:10px; }
+  /* ── Entity type groups ── */
+  .ent-type-group { margin-bottom: 24px; }
+  .ent-type-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .ent-type-icon { font-size: 18px; }
+  .ent-type-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
+  .ent-type-count { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .ent-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .ent-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; transition: all 0.2s; }
+  .ent-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(124,58,237,0.1); }
+  .ent-card-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .ent-card-context { font-size: 11px; color: var(--muted); line-height: 1.5; }
 
-/* LABEL GRID */
-#label-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:8px; }
-.label-card {
-  background:var(--surface);border:1px solid var(--border);border-radius:8px;
-  padding:10px 12px;font-size:12px;cursor:pointer;
-  transition:border-color .15s,transform .1s,box-shadow .15s;
-  position:relative;user-select:none;
-}
-.label-card:hover { border-color:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.3); }
-.label-card.selected { border-color:var(--accent);background:rgba(91,106,240,.07); }
-.label-card .sel-check { position:absolute;top:6px;right:7px;font-size:9px;font-weight:700;color:var(--accent);background:rgba(91,106,240,.2);border-radius:50%;width:16px;height:16px;display:none;align-items:center;justify-content:center; }
-.label-card.selected .sel-check { display:flex; }
-.label-card .lc-num { position:absolute;top:6px;right:7px;font-size:10px;color:var(--subtle);font-family:'DM Mono',monospace; }
-.label-card.selected .lc-num { display:none; }
-.label-card .lc-class { font-size:10px;color:var(--muted);margin-bottom:3px;display:flex;align-items:center;gap:5px;padding-right:18px; }
-.label-card .lc-dot { width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0; }
-.label-card .lc-name { font-weight:700;font-size:13px;margin-bottom:6px;line-height:1.3;padding-right:18px; }
-.label-card hr { border:none;border-top:1px solid var(--border);margin-bottom:5px; }
-.label-card .lc-item { font-size:11px;color:var(--muted);margin-bottom:2px;display:flex;align-items:baseline;gap:4px; }
-.label-card .lc-item::before { content:'·';color:var(--accent2);flex-shrink:0; }
-.label-card .edit-btn { position:absolute;bottom:5px;right:5px;font-size:11px;padding:3px 5px;display:none; }
-.label-card:hover .edit-btn { display:inline-flex; }
-.empty-state { grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--muted); }
-.empty-state .icon { font-size:40px;margin-bottom:10px;opacity:.5; }
+  /* ── Download & reset ── */
+  .action-row { display: flex; gap: 12px; margin-top: 8px; }
+  .btn-download {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 16px; background: linear-gradient(135deg, #059669, #047857);
+    border: none; border-radius: 12px; color: white;
+    font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+    cursor: pointer; text-decoration: none; transition: all 0.3s;
+  }
+  .btn-download:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(5,150,105,0.4); }
+  .btn-reset { padding: 16px 24px; background: transparent; border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; white-space: nowrap; }
+  .btn-reset:hover { border-color: var(--muted); color: var(--text); }
 
-/* PAGINATION */
-.pagination { display:flex;align-items:center;justify-content:center;gap:6px;margin-top:18px;flex-wrap:wrap; }
-.page-btn { background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 11px;font-size:12px;cursor:pointer;transition:all .12s;font-family:inherit; }
-.page-btn:hover { border-color:var(--accent);color:var(--accent2); }
-.page-btn.active { background:var(--accent);border-color:var(--accent);color:#fff; }
-.page-btn:disabled { opacity:.35;cursor:not-allowed; }
+  /* ── Error ── */
+  .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 16px 20px; font-size: 13px; color: #fca5a5; display: none; }
+  .error-box.show { display: block; }
 
-/* MODAL */
-.modal-overlay { display:none;position:fixed;inset:0;background:rgba(8,9,18,.85);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center;padding:20px; }
-.modal-overlay.show { display:flex; }
-.modal { background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow); }
-.modal-head { padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between; }
-.modal-head h3 { font-size:15px;font-weight:700; }
-.modal-close { background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:2px 6px; }
-.modal-close:hover { color:var(--text); }
-.modal-body { padding:20px; }
-.modal-foot { padding:13px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end; }
+  /* ── Empty state ── */
+  .empty-state { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
 
-/* FIELD ORDER LIST */
-.field-order-list { display:flex;flex-direction:column;gap:6px; }
-.field-order-item { display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 12px;cursor:grab; }
-.field-order-item.dragging { opacity:.4; }
-.field-order-item .foi-icon { color:var(--subtle);font-size:13px; }
-.field-order-item .foi-label { flex:1;font-size:13px;font-weight:500; }
-.field-order-item input[type=checkbox] { accent-color:var(--accent);width:15px;height:15px; }
-.field-order-item .foi-align { background:var(--surface3);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:3px 7px;font-size:11px;font-family:inherit;outline:none; }
-.font-controls { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px; }
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-/* PRESET GRID */
-.preset-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px; }
-.preset-btn { background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .15s;text-align:left;font-family:inherit; }
-.preset-btn:hover { border-color:var(--accent2); }
-.preset-btn.active { border-color:var(--accent);background:rgba(91,106,240,.1); }
-.preset-btn .pb-name { font-size:12px;font-weight:700;color:var(--text); }
-.preset-btn .pb-sub { font-size:10px;color:var(--muted);margin-top:2px; }
-
-/* GROQ SCAN */
-.groq-scan-section { background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;margin-bottom:14px; }
-.groq-scan-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:2px; }
-
-/* AI ASSISTANT CARD */
-.ai-feature-row { display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface3);border-radius:7px;border:1px solid var(--border); }
-.ai-feat-icon { font-size:13px;flex-shrink:0; }
-.ai-feat-label { flex:1;font-size:12px;color:var(--text); }
-.ai-feat-badge { font-size:9px;font-weight:700;background:var(--surface2);border:1px solid var(--border2);color:var(--subtle);padding:2px 7px;border-radius:10px;font-family:'DM Mono',monospace;transition:all .2s; }
-.ai-key-active .ai-feat-badge { background:rgba(91,106,240,.15);border-color:var(--accent);color:var(--accent3); }
-.ai-key-active .ai-feature-row { border-color:rgba(91,106,240,.25); }
-.ai-status { display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);margin-top:8px; }
-.ai-status-dot { width:7px;height:7px;border-radius:50%;background:var(--subtle);transition:background .3s;flex-shrink:0; }
-.ai-status-dot.active { background:var(--success);box-shadow:0 0 6px rgba(34,197,94,.5); }
-
-/* COLUMN MAPPING */
-.mapping-table { width:100%;border-collapse:collapse;font-size:12px; }
-.mapping-table th { background:var(--surface2);padding:7px 10px;text-align:left;font-weight:600;color:var(--muted);border-bottom:1px solid var(--border); }
-.mapping-table td { padding:7px 10px;border-bottom:1px solid var(--border); }
-.mapping-table select { background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:11px;font-family:inherit;outline:none; }
-/* COLUMN CHIPS */
-.col-combiner { display:flex;flex-wrap:wrap;align-items:center;gap:5px;min-height:26px; }
-.col-chip { display:inline-flex;align-items:center;gap:5px;background:rgba(91,106,240,.18);border:1px solid var(--accent);color:var(--accent3);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;white-space:nowrap; }
-.col-chip .chip-rm { background:none;border:none;color:var(--accent2);cursor:pointer;font-size:13px;line-height:1;padding:0 0 0 2px;font-family:inherit; }
-.col-chip .chip-rm:hover { color:var(--danger); }
-.col-chip-sep { font-size:11px;color:var(--muted);padding:0 2px;font-family:'DM Mono',monospace; }
-
-/* LOADING */
-#loading { display:none;position:fixed;inset:0;background:rgba(11,13,20,.92);backdrop-filter:blur(6px);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:14px; }
-#loading.show { display:flex; }
-.spinner { width:44px;height:44px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite; }
-#loading-msg { color:var(--text);font-size:15px;font-weight:600; }
-#loading-sub { color:var(--muted);font-size:12px; }
-@keyframes spin { to { transform:rotate(360deg); } }
-
-/* RESPONSIVE */
-@media (max-width:980px) { .app{grid-template-columns:1fr} }
-@media (max-width:600px) { #label-grid{grid-template-columns:repeat(2,1fr)} header{padding:14px 18px} .app{padding:16px 14px} }
-@media (max-width:400px) { #label-grid{grid-template-columns:1fr} }
+  @media (max-width: 640px) {
+    .strip-grid { grid-template-columns: repeat(2,1fr); }
+    .tab-btn { font-size: 11px; padding: 8px 4px; }
+    .ent-cards-grid { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
+<div class="container">
 
-<!-- LOADING -->
-<div id="loading">
-  <div class="spinner"></div>
-  <div id="loading-msg">Processing…</div>
-  <div id="loading-sub"></div>
-</div>
+  <header>
+    <div class="badge">Groq AI · LLaMA 3.3 · PDF Intelligence</div>
+    <h1>PDF Categorizer</h1>
+    <p class="subtitle">Upload any PDF. Groq AI reads, analyzes, and exports structured data to Excel — in seconds.</p>
+  </header>
 
-<!-- EDIT LABEL MODAL -->
-<div class="modal-overlay" id="edit-modal">
-  <div class="modal">
-    <div class="modal-head">
-      <h3>✏️ Edit Label</h3>
-      <button class="modal-close" id="edit-modal-close">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="settings-grid">
-        <div class="field"><label>Student Name</label><input type="text" id="edit-name"></div>
-        <div class="field"><label>Class / Teacher</label><input type="text" id="edit-class"></div>
-        <div class="field"><label>Order Items (one per line)</label><textarea id="edit-items" rows="5"></textarea></div>
+  <!-- Config -->
+  <div class="card" id="uploadCard">
+    <div class="card-title">01 · Configuration</div>
+    <label class="input-label">GROQ API KEY</label>
+    <input type="password" id="apiKey" class="input-field" value="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" placeholder="gsk_••••••••••••••••••••••••••••••">
+    <p class="input-hint">Get your free key at <a href="https://console.groq.com" target="_blank">console.groq.com</a> · Never stored.</p>
+
+    <div style="margin-top:28px;">
+      <div class="card-title">02 · Upload PDF</div>
+      <div class="drop-zone" id="dropZone">
+        <span class="drop-icon">📄</span>
+        <div class="drop-title">Drop your PDF here</div>
+        <div class="drop-sub">or <span onclick="document.getElementById('fileInput').click()">browse files</span></div>
       </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-outline btn-sm" id="edit-modal-cancel">Cancel</button>
-      <button class="btn btn-primary btn-sm" id="edit-modal-save" style="width:auto">💾 Save Changes</button>
+      <input type="file" id="fileInput" accept=".pdf">
+      <div class="file-info" id="fileInfo">
+        <span style="font-size:20px">✅</span>
+        <span class="file-name" id="fileName"></span>
+        <span id="fileSize" style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;"></span>
+        <span class="file-remove" onclick="removeFile()">✕</span>
+      </div>
+      <div class="error-box" id="errorBox"></div>
+      <button class="btn-process" id="processBtn" onclick="startProcessing()" disabled>⚡ Analyze with Groq AI</button>
     </div>
   </div>
-</div>
 
-<!-- COLUMN MAPPING MODAL -->
-<div class="modal-overlay" id="map-modal">
-  <div class="modal">
-    <div class="modal-head">
-      <h3>📊 Map Spreadsheet Columns</h3>
-      <button class="modal-close" id="map-modal-close">×</button>
+  <!-- Progress -->
+  <div class="card" id="progressSection">
+    <div class="card-title">03 · Processing</div>
+    <div class="progress-header">
+      <span class="progress-label" id="statusLabel">Initializing...</span>
+      <span class="progress-pct" id="progressPct">0%</span>
     </div>
-    <div class="modal-body">
-      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Match your spreadsheet columns to the label fields.</p>
-      <table class="mapping-table">
-        <thead><tr><th>Label Field</th><th>Your Column</th></tr></thead>
-        <tbody id="mapping-tbody"></tbody>
-      </table>
-      <div id="map-preview" style="margin-top:14px;display:none">
-        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Preview (first rows)</div>
-        <div id="map-preview-cards" style="display:flex;flex-direction:column;gap:6px;font-size:12px;"></div>
-      </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-outline btn-sm" id="map-modal-cancel">Cancel</button>
-      <button class="btn btn-primary btn-sm" id="map-modal-confirm" style="width:auto">✅ Import Labels</button>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <div class="status-steps">
+      <div class="step" id="step-extracting"><span class="step-dot"></span>Extracting Text</div>
+      <div class="step" id="step-analyzing"><span class="step-dot"></span>AI Analysis</div>
+      <div class="step" id="step-building_excel"><span class="step-dot"></span>Building Excel</div>
+      <div class="step" id="step-complete"><span class="step-dot"></span>Complete</div>
     </div>
   </div>
-</div>
 
-<header>
-  <div class="logo">🏷️</div>
-  <div>
-    <h1>Label Generator</h1>
-    <p>Upload PDF, Excel or CSV → print on any Avery label sheet</p>
+  <!-- Summary strip -->
+  <div class="card" id="summaryStrip">
+    <div class="card-title">04 · Document Overview</div>
+    <div class="strip-grid">
+      <div class="strip-chip"><div class="strip-chip-label">Type</div><div class="strip-chip-value" id="res-type">—</div></div>
+      <div class="strip-chip"><div class="strip-chip-label">Pages</div><div class="strip-chip-value" id="res-pages">—</div></div>
+      <div class="strip-chip"><div class="strip-chip-label">Sentiment</div><div class="strip-chip-value" id="res-sentiment">—</div></div>
+      <div class="strip-chip"><div class="strip-chip-label">Language</div><div class="strip-chip-value" id="res-lang">—</div></div>
+    </div>
+    <div class="summary-quote" id="res-summary"></div>
+    <div class="action-row" style="margin-top:20px;">
+      <a class="btn-download" id="downloadBtn" href="#">⬇ Download Excel</a>
+      <button class="btn-reset" onclick="resetAll()">← New PDF</button>
+    </div>
   </div>
-  <span class="version-tag">v2.0</span>
-</header>
 
-<div class="app">
-
-  <!-- LEFT PANEL -->
-  <div class="panel">
-
-    <!-- AI ASSISTANT -->
-    <div class="card" id="ai-card">
-      <div class="card-head">
-        <span class="icon">🤖</span><h2>AI Assistant</h2>
-        <span class="ai-status-dot" id="ai-status-dot" style="margin-left:auto" title="No key set"></span>
-      </div>
-      <div class="card-body">
-        <p style="font-size:11px;color:var(--muted);margin-bottom:10px">Add a Groq key to power smart column detection, intelligent label parsing, and sheet scanning. <a href="https://console.groq.com" target="_blank" style="color:var(--accent2)">Get a free key →</a></p>
-        <div class="field" style="margin-bottom:10px">
-          <label>Groq API Key</label>
-          <input type="password" id="groq-api-key" value="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" placeholder="gsk_…" autocomplete="off" spellcheck="false">
-        </div>
-        <div style="display:flex;flex-direction:column;gap:5px">
-          <div class="ai-feature-row"><span class="ai-feat-icon">📊</span><span class="ai-feat-label">Smart column mapping</span><span class="ai-feat-badge" id="badge-columns">OFF</span></div>
-          <div class="ai-feature-row"><span class="ai-feat-icon">🔍</span><span class="ai-feat-label">Intelligent label parsing</span><span class="ai-feat-badge" id="badge-parse">OFF</span></div>
-          <div class="ai-feature-row"><span class="ai-feat-icon">📷</span><span class="ai-feat-label">Label sheet scanning</span><span class="ai-feat-badge" id="badge-scan">OFF</span></div>
-        </div>
-      </div>
+  <!-- Grouped view -->
+  <div id="groupedView">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('pages', this)">📄 By Page</button>
+      <button class="tab-btn" onclick="switchTab('categories', this)">🏷 By Category</button>
+      <button class="tab-btn" onclick="switchTab('entities', this)">👤 By Entity Type</button>
+      <button class="tab-btn" onclick="switchTab('topics', this)">💡 Topics & Actions</button>
     </div>
 
-    <!-- UPLOAD -->
-    <div class="card">
-      <div class="card-head"><span class="icon">📂</span><h2>Upload File</h2></div>
-      <div class="card-body">
-        <div class="drop-zone" id="drop-zone">
-          <input type="file" id="file-input" accept=".pdf,.xlsx,.xls,.csv">
-          <div class="dz-icon">📄</div>
-          <div class="dz-title">Click to browse or drag &amp; drop</div>
-          <div class="dz-sub">Processed locally — never sent to a server</div>
-          <div class="file-types">
-            <span class="file-type-badge">PDF</span>
-            <span class="file-type-badge">XLSX</span>
-            <span class="file-type-badge">XLS</span>
-            <span class="file-type-badge">CSV</span>
-          </div>
-        </div>
-        <div id="file-name"></div>
-        <div class="alert alert-error"   id="alert-error"   style="margin-top:10px"></div>
-        <div class="alert alert-success" id="alert-success" style="margin-top:10px"></div>
-        <div class="alert alert-warn"    id="alert-warn"    style="margin-top:10px"></div>
-        <div id="progress-wrap">
-          <div class="progress-bg"><div class="progress-fill" id="progress-bar"></div></div>
-          <div id="progress-label">Starting…</div>
-        </div>
-        <button class="btn btn-primary" id="btn-parse" disabled style="margin-top:12px">🔍 Parse &amp; Preview Labels</button>
-      </div>
-    </div>
+    <!-- Tab: By Page -->
+    <div class="tab-panel active" id="tab-pages"></div>
 
-    <!-- SHEET -->
-    <div class="card">
-      <div class="card-head"><span class="icon">📐</span><h2>Label Sheet</h2></div>
-      <div class="card-body">
-        <div class="preset-grid">
-          <button class="preset-btn active" data-preset="avery5160">
-            <div class="pb-name">Avery 5160</div>
-            <div class="pb-sub">30/page · 1″ × 2⅝″</div>
-          </button>
-          <button class="preset-btn" data-preset="avery5163">
-            <div class="pb-name">Avery 5163</div>
-            <div class="pb-sub">10/page · 2″ × 4″</div>
-          </button>
-          <button class="preset-btn" data-preset="avery5167">
-            <div class="pb-name">Avery 5167</div>
-            <div class="pb-sub">80/page · ½″ × 1¾″</div>
-          </button>
-          <button class="preset-btn" data-preset="custom">
-            <div class="pb-name">Custom</div>
-            <div class="pb-sub">Set your own dimensions</div>
-          </button>
-        </div>
+    <!-- Tab: By Category -->
+    <div class="tab-panel" id="tab-categories"></div>
 
-        <!-- GROQ VISION SCAN -->
-        <div class="groq-scan-section">
-          <div class="groq-scan-header">
-            <span style="font-size:13px;font-weight:600;color:var(--text)">📷 Auto-detect from photo</span>
-            <button class="btn btn-icon btn-sm" id="btn-groq-info" title="How this works" style="font-size:12px;padding:3px 7px;">?</button>
-          </div>
-          <p style="font-size:11px;color:var(--muted);margin:4px 0 8px">Photograph your blank label sheet — Groq AI measures the grid for you. Set your API key in the AI Assistant card above.</p>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button class="btn btn-outline btn-sm" id="btn-scan-sheet" style="flex:1;justify-content:center">📷 Scan Sheet Photo</button>
-            <input type="file" id="scan-file-input" accept="image/*" style="display:none">
-          </div>
-          <div class="alert alert-error"   id="scan-alert-error"   style="margin-top:8px"></div>
-          <div class="alert alert-success" id="scan-alert-success" style="margin-top:8px"></div>
-          <div id="scan-loading" style="display:none;margin-top:8px;font-size:12px;color:var(--muted);align-items:center;gap:8px;">
-            <div class="spinner" style="width:18px;height:18px;border-width:2px;"></div>
-            <span>Analysing with Groq…</span>
-          </div>
-        </div>
-        <div class="settings-grid">
-          <div class="row2">
-            <div class="field"><label>Columns</label><input type="number" id="cfg-cols" value="3" min="1" max="8"></div>
-            <div class="field"><label>Rows</label><input type="number" id="cfg-rows" value="10" min="1" max="30"></div>
-          </div>
-          <div class="row2">
-            <div class="field"><label>Left Margin (mm)</label><input type="number" id="cfg-ml" value="4.76" step="0.1"></div>
-            <div class="field"><label>Top Margin (mm)</label><input type="number" id="cfg-mt" value="12.7" step="0.1"></div>
-          </div>
-          <div class="row2">
-            <div class="field"><label>Right Margin (mm)</label><input type="number" id="cfg-mr" value="4.76" step="0.1"></div>
-            <div class="field"><label>Bottom Margin (mm)</label><input type="number" id="cfg-mb" value="12.7" step="0.1"></div>
-          </div>
-          <div class="row2">
-            <div class="field"><label>Label Width (mm)</label><input type="number" id="cfg-lw" value="66.675" step="0.1"></div>
-            <div class="field"><label>Label Height (mm)</label><input type="number" id="cfg-lh" value="25.4" step="0.1"></div>
-          </div>
-          <div class="row2">
-            <div class="field"><label>Col Gap (mm)</label><input type="number" id="cfg-cg" value="3.17" step="0.1"></div>
-            <div class="field"><label>Row Gap (mm)</label><input type="number" id="cfg-rg" value="0" step="0.1"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Tab: By Entity Type -->
+    <div class="tab-panel" id="tab-entities"></div>
 
-    <!-- TEMPLATE -->
-    <div class="card">
-      <div class="card-head"><span class="icon">🎨</span><h2>Label Template</h2></div>
-      <div class="card-body">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Drag rows to reorder fields on the printed label.</div>
-        <div class="field-order-list" id="field-order-list"></div>
-        <div class="font-controls">
-          <div class="field"><label>Name Size (pt)</label><input type="number" id="font-name" value="9" min="5" max="16" step="0.5"></div>
-          <div class="field"><label>Items Size (pt)</label><input type="number" id="font-items" value="7.5" min="4" max="14" step="0.5"></div>
-          <div class="field"><label>Class Size (pt)</label><input type="number" id="font-class" value="7" min="4" max="14" step="0.5"></div>
-          <div class="field"><label>Auto-scale</label>
-            <select id="font-autoscale">
-              <option value="1">Yes (fit to label)</option>
-              <option value="0">No (fixed sizes)</option>
-            </select>
-          </div>
-        </div>
-        <hr class="sep" style="margin-top:14px">
-        <div class="settings-grid" style="margin-top:10px">
-          <div class="toggle-row"><span>Show label borders</span><button class="toggle on" id="toggle-border"></button></div>
-          <div class="toggle-row"><span>Sort by class name</span><button class="toggle on" id="toggle-sort"></button></div>
-          <div class="toggle-row"><span>Sort by student first name</span><button class="toggle on" id="toggle-sort-name"></button></div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /left -->
-
-  <!-- RIGHT PANEL -->
-  <div id="preview-panel">
-    <div class="card">
-      <div class="card-body">
-        <div class="preview-header">
-          <div class="preview-title">
-            <h2>Label Preview</h2>
-            <span class="badge" id="badge-count">0</span>
-          </div>
-          <div class="preview-actions">
-            <button class="btn btn-outline btn-sm" id="btn-refresh">↻ Re-parse</button>
-            <button class="btn btn-outline btn-sm" id="btn-select-all">☑ All</button>
-            <button class="btn btn-outline btn-sm" id="btn-deselect-all">☐ None</button>
-            <button class="btn btn-success" id="btn-download">⬇ Download PDF</button>
-          </div>
-        </div>
-        <div class="stats">
-          <div class="stat"><div class="val" id="stat-labels">0</div><div class="lbl">Total</div></div>
-          <div class="stat"><div class="val" id="stat-selected">0</div><div class="lbl">Selected</div></div>
-          <div class="stat"><div class="val" id="stat-pages">0</div><div class="lbl">Pages</div></div>
-          <div class="stat"><div class="val" id="stat-classes">0</div><div class="lbl">Classes</div></div>
-        </div>
-        <div class="toolbar">
-          <input type="text" class="search-input" id="search-input" placeholder="🔍  Search by name, class or item…">
-          <select id="filter-class"><option value="">All classes</option></select>
-        </div>
-        <div class="select-info" id="select-info">Click a label to select/deselect · Double-click to edit</div>
-        <div id="label-grid"></div>
-        <div class="pagination" id="pagination"></div>
-      </div>
-    </div>
+    <!-- Tab: Topics & Actions -->
+    <div class="tab-panel" id="tab-topics"></div>
   </div>
 
 </div>
 
-<footer style="text-align:center;padding:18px;border-top:1px solid var(--border);margin-top:20px;font-size:11px;color:var(--subtle);">
-  © 2026 All rights reserved — <a href="mailto:info@gbajwa.com" style="color:var(--accent2);text-decoration:none">gbajwa.com</a>
-</footer>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.3/tesseract.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-'use strict';
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  let selectedFile = null;
+  let pollingInterval = null;
+  let currentJobId = null;
+  let globalJob = null;
 
-// ══ STATE ══════════════════════════════════════════════════════
-let allLabels=[], filtered=[], selectedIds=new Set(), currentPage=1, currentFile=null;
-let showBorder=true, sortByClass=true, sortByName=true, editingId=null;
-const PER_VIEW=30;
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const processBtn = document.getElementById('processBtn');
 
-let fieldOrder=[
-  {key:'class', label:'Class / Teacher', visible:true, align:'C', bold:true },
-  {key:'name',  label:'Student Name',    visible:true, align:'C', bold:true },
-  {key:'items', label:'Order Items',     visible:true, align:'C', bold:false},
-];
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
+  dropZone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
 
-const PRESETS={
-  avery5160:{cols:3,rows:10,ml:4.76,mt:12.7,mr:4.76,mb:12.7,lw:66.675,lh:25.4,cg:3.17,rg:0},
-  avery5163:{cols:2,rows:5, ml:4.76,mt:12.7,mr:4.76,mb:12.7,lw:101.6, lh:50.8,cg:3.17,rg:0},
-  avery5167:{cols:4,rows:20,ml:4.76,mt:12.7,mr:4.76,mb:12.7,lw:44.45, lh:12.7,cg:3.17,rg:0},
-};
-
-// ══ DOM ════════════════════════════════════════════════════════
-const $=id=>document.getElementById(id);
-const dropZone=$('drop-zone'),fileInput=$('file-input'),fileNameEl=$('file-name');
-const btnParse=$('btn-parse'),btnDownload=$('btn-download'),btnRefresh=$('btn-refresh');
-const previewPanel=$('preview-panel'),labelGrid=$('label-grid'),pagination=$('pagination');
-const searchInput=$('search-input'),filterClass=$('filter-class');
-const alertError=$('alert-error'),alertSuccess=$('alert-success'),alertWarn=$('alert-warn');
-const loadingEl=$('loading'),loadingMsg=$('loading-msg'),loadingSub=$('loading-sub');
-const progressWrap=$('progress-wrap'),progressBar=$('progress-bar'),progressLbl=$('progress-label');
-
-// ══ FILE ═══════════════════════════════════════════════════════
-dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('drag-over')});
-dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)handleFile(f)});
-fileInput.addEventListener('change',()=>{if(fileInput.files[0])handleFile(fileInput.files[0])});
-
-function handleFile(f){
-  const n=f.name.toLowerCase();
-  if(!/\.(pdf|xlsx|xls|csv)$/.test(n)){showError('Please upload a PDF, XLSX, XLS, or CSV file.');return;}
-  currentFile=f; fileNameEl.textContent='📄 '+f.name; fileNameEl.style.display='block';
-  btnParse.disabled=false; hideAlerts();
-}
-
-// ══ PRESETS ════════════════════════════════════════════════════
-document.querySelectorAll('.preset-btn').forEach(btn=>{
-  btn.addEventListener('click',function(){
-    document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
-    this.classList.add('active');
-    const p=PRESETS[this.dataset.preset];
-    if(p){$('cfg-cols').value=p.cols;$('cfg-rows').value=p.rows;$('cfg-ml').value=p.ml;$('cfg-mt').value=p.mt;$('cfg-mr').value=p.mr;$('cfg-mb').value=p.mb;$('cfg-lw').value=p.lw;$('cfg-lh').value=p.lh;$('cfg-cg').value=p.cg;$('cfg-rg').value=p.rg;}
-    if(allLabels.length)updateStats();
-  });
-});
-
-// ══ TOGGLES ════════════════════════════════════════════════════
-$('toggle-border').addEventListener('click',function(){showBorder=!showBorder;this.classList.toggle('on',showBorder);});
-$('toggle-sort').addEventListener('click',function(){sortByClass=!sortByClass;this.classList.toggle('on',sortByClass);if(allLabels.length)applyFilter();});
-$('toggle-sort-name').addEventListener('click',function(){sortByName=!sortByName;this.classList.toggle('on',sortByName);if(allLabels.length)applyFilter();});
-
-// ══ FIELD TEMPLATE EDITOR ══════════════════════════════════════
-function buildFieldEditor(){
-  const list=$('field-order-list'); list.innerHTML='';
-  fieldOrder.forEach((f,i)=>{
-    const item=document.createElement('div');
-    item.className='field-order-item'; item.draggable=true; item.dataset.idx=i;
-    item.innerHTML=`<span class="foi-icon">⠿</span><span class="foi-label">${f.label}</span>
-      <select class="foi-align" data-key="${f.key}">
-        <option value="L"${f.align==='L'?' selected':''}>Left</option>
-        <option value="C"${f.align==='C'?' selected':''}>Center</option>
-        <option value="R"${f.align==='R'?' selected':''}>Right</option>
-      </select>
-      <input type="checkbox"${f.visible?' checked':''} data-key="${f.key}" title="Show on label">`;
-    item.querySelector('select').addEventListener('change',e=>{const fi=fieldOrder.find(x=>x.key===e.target.dataset.key);if(fi)fi.align=e.target.value;});
-    item.querySelector('input').addEventListener('change',e=>{const fi=fieldOrder.find(x=>x.key===e.target.dataset.key);if(fi)fi.visible=e.target.checked;});
-    item.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',i);item.classList.add('dragging');});
-    item.addEventListener('dragend',()=>item.classList.remove('dragging'));
-    item.addEventListener('dragover',e=>e.preventDefault());
-    item.addEventListener('drop',e=>{
-      e.preventDefault();
-      const from=parseInt(e.dataTransfer.getData('text/plain')),to=parseInt(item.dataset.idx);
-      if(from===to)return;
-      const moved=fieldOrder.splice(from,1)[0]; fieldOrder.splice(to,0,moved); buildFieldEditor();
-    });
-    list.appendChild(item);
-  });
-}
-buildFieldEditor();
-
-// ══ AI KEY MANAGEMENT ══════════════════════════════════════════
-function getGroqKey(){ return ($('groq-api-key').value||'').trim(); }
-
-function updateAiBadges(){
-  const active=!!getGroqKey();
-  $('ai-card').classList.toggle('ai-key-active',active);
-  $('ai-status-dot').classList.toggle('active',active);
-  $('ai-status-dot').title=active?'AI ready — all features powered':'No key — using built-in parser';
-  ['columns','parse','scan'].forEach(k=>{
-    const b=$('badge-'+k); if(b){b.textContent=active?'AI ON':'OFF';}
-  });
-}
-$('groq-api-key').addEventListener('input',updateAiBadges);
-updateAiBadges();
-
-async function groqCall(action, params){
-  const key=getGroqKey();
-  if(!key) return {error:'No API key'};
-  const fd=new FormData();
-  fd.append('action',action);
-  fd.append('groq_api_key',key);
-  for(const [k,v] of Object.entries(params)) fd.append(k, typeof v==='object'?JSON.stringify(v):v);
-  try{
-    const res=await fetch('groq.php',{method:'POST',body:fd});
-    return await res.json();
-  }catch(e){return {error:e.message};}
-}
-
-// ══ PARSE ══════════════════════════════════════════════════════
-btnParse.addEventListener('click',runParse);
-btnRefresh.addEventListener('click',runParse);
-
-async function runParse(){
-  if(!currentFile)return;
-  hideAlerts(); setProgress(0,'Loading file…'); showProgressBar();
-  try{
-    const n=currentFile.name.toLowerCase();
-    let labels;
-    if(/\.(xlsx|xls|csv)$/.test(n)){labels=await parseSpreadsheet(currentFile);}
-    else{labels=await parsePDF(currentFile);}
-    if(!labels||!labels.length){showError('No labels found. Check the file format.');return;}
-    allLabels=labels.map((l,i)=>({...l,_id:i}));
-    selectedIds=new Set(allLabels.map(l=>l._id));
-    buildClassFilter(); applyFilter(); updateStats();
-    previewPanel.style.display='block';
-    showSuccess(`✅ Parsed ${allLabels.length} labels successfully!`);
-    setProgress(100,'Done!'); setTimeout(hideProgressBar,1500);
-  }catch(err){showError('Error: '+err.message);console.error(err);}
-  finally{hideLoading();}
-}
-
-// ── PDF parser ────────────────────────────────────────────────
-async function parsePDF(file){
-  const buf=await file.arrayBuffer();
-  const pdfDoc=await pdfjsLib.getDocument({data:buf}).promise;
-  const np=pdfDoc.numPages;
-  setProgress(5,`Extracting text… (${np} pages)`);
-
-  const rawItems=await extractPositionedText(pdfDoc,np);
-  if(!rawItems.length) return await runOCR(pdfDoc,np);
-
-  setProgress(75,'Parsing labels…');
-  const lines=itemsToLines(rawItems);
-  let labels=parseLines(lines);
-
-  if(!labels.length) return await runOCR(pdfDoc,np);
-
-  if(getGroqKey()){
-    setProgress(88,'AI refining labels…');
-    showLoading('AI Refinement…','Groq is verifying and cleaning up labels…');
-    const result=await groqCall('refine_labels',{labels:labels.slice(0,300),total:labels.length});
-    hideLoading();
-    if(result.ok&&result.labels&&result.labels.length) return result.labels;
+  function handleFile(file) {
+    if (!file.name.toLowerCase().endsWith('.pdf')) { showError('Please upload a PDF file.'); return; }
+    selectedFile = file;
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileSize').textContent = formatSize(file.size);
+    document.getElementById('fileInfo').classList.add('show');
+    dropZone.classList.add('has-file');
+    hideError(); checkReady();
   }
-  return labels;
-}
-
-// Extract every text item with its exact XY position (Y flipped to top=0)
-async function extractPositionedText(pdfDoc,np){
-  const items=[];
-  for(let p=1;p<=np;p++){
-    setProgress(5+Math.round((p/np)*65),`Extracting page ${p}/${np}…`);
-    const page=await pdfDoc.getPage(p);
-    const vp=page.getViewport({scale:1});
-    const content=await page.getTextContent();
-    for(const item of content.items){
-      const t=(item.str||'').trim();
-      if(!t)continue;
-      items.push({
-        text:t,
-        x:Math.round(item.transform[4]*10)/10,
-        y:Math.round((vp.height-item.transform[5])*10)/10,
-        page:p
-      });
-    }
+  function removeFile() {
+    selectedFile = null; fileInput.value = '';
+    document.getElementById('fileInfo').classList.remove('show');
+    dropZone.classList.remove('has-file'); checkReady();
   }
-  return items;
-}
+  function formatSize(b) { if(b<1024)return b+' B'; if(b<1048576)return(b/1024).toFixed(1)+' KB'; return(b/1048576).toFixed(1)+' MB'; }
+  document.getElementById('apiKey').addEventListener('input', checkReady);
+  function checkReady() { processBtn.disabled = !(selectedFile && document.getElementById('apiKey').value.trim().length > 10); }
+  function showError(msg) { const b=document.getElementById('errorBox'); b.textContent='⚠ '+msg; b.classList.add('show'); }
+  function hideError() { document.getElementById('errorBox').classList.remove('show'); }
 
-// Convert positioned items → clean flat ordered lines
-// Handles both linear-list PDFs and multi-column label-grid PDFs
-function itemsToLines(items){
-  if(!items.length) return [];
-
-  // ── Step 1: detect column layout by analysing X-position histogram ──────
-  // Items in the same label column share a narrow X range; different columns
-  // are separated by a clear gap in X.
-  const pageGroups={};
-  items.forEach(it=>(pageGroups[it.page]=pageGroups[it.page]||[]).push(it));
-
-  const allLines=[];
-
-  for(const p of Object.keys(pageGroups).map(Number).sort((a,b)=>a-b)){
-    const pts=pageGroups[p];
-
-    // Find column boundaries via X gap analysis (gaps > 30pt = ~10mm)
-    const xVals=[...new Set(pts.map(it=>Math.round(it.x)))].sort((a,b)=>a-b);
-    const colStarts=[xVals[0]];
-    for(let i=1;i<xVals.length;i++){
-      if(xVals[i]-xVals[i-1]>30) colStarts.push(xVals[i]);
-    }
-    const colEnds=colStarts.map((_,ci)=>ci<colStarts.length-1?colStarts[ci+1]-1:Infinity);
-
-    // ── Step 2: process each column independently ───────────────────────
-    for(let ci=0;ci<colStarts.length;ci++){
-      const colItems=pts.filter(it=>it.x>=colStarts[ci]-5&&it.x<=colEnds[ci]);
-      if(!colItems.length) continue;
-
-      // Group into text lines by Y proximity (±3pt)
-      const lineMap={};
-      for(const it of colItems){
-        const yk=Math.round(it.y/3)*3;
-        (lineMap[yk]=lineMap[yk]||[]).push(it);
-      }
-
-      // Sort lines top-to-bottom and join words left-to-right
-      const colLines=Object.keys(lineMap).map(Number).sort((a,b)=>a-b)
-        .map(yk=>{
-          const row=lineMap[yk];
-          row.sort((a,b)=>a.x-b.x);
-          // Within a column, words of the same text item may be multiple PDF objects.
-          // Join them with a space — no inner splitting needed here because we've
-          // already isolated the column.
-          return row.map(i=>i.text).join(' ').trim();
-        })
-        .filter(Boolean);
-
-      allLines.push(...colLines);
-    }
+  async function startProcessing() {
+    const apiKey = document.getElementById('apiKey').value.trim();
+    if (!apiKey || !selectedFile) return;
+    hideError();
+    processBtn.disabled = true; processBtn.textContent = 'Uploading...';
+    document.getElementById('progressSection').classList.add('show');
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('api_key', apiKey);
+    try {
+      const res = await fetch('/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok) { showError(data.error || 'Upload failed'); resetBtn(); return; }
+      currentJobId = data.job_id;
+      pollStatus();
+    } catch(e) { showError('Network error: ' + e.message); resetBtn(); }
   }
 
-  return allLines;
-}
+  function resetBtn() { processBtn.disabled = false; processBtn.textContent = '⚡ Analyze with Groq AI'; }
 
-// OCR path
-async function runOCR(pdfDoc,np){
-  showLoading('Initialising OCR engine…','Downloads ~10 MB language data on first run');
-  const worker=await Tesseract.createWorker('eng',1,{logger:()=>{}});
-  const allItems=[];
-  const scale=72/200;
-  for(let p=1;p<=np;p++){
-    setProgress(Math.round(5+(p/np)*80),`OCR: page ${p} of ${np}…`);
-    showLoading(`OCR: page ${p} of ${np}`,`${np} pages total`);
-    const page=await pdfDoc.getPage(p);
-    const vp=page.getViewport({scale:200/72});
-    const canvas=document.createElement('canvas');
-    canvas.width=vp.width; canvas.height=vp.height;
-    await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
-    const{data}=await worker.recognize(canvas,{},{hocr:false,tsv:true});
-    (data.words||[]).filter(w=>w.confidence>25&&w.text.trim()).forEach(w=>{
-      allItems.push({text:w.text.trim(), x:w.bbox.x0*scale, y:w.bbox.y0*scale, page:p});
+  const statusLabels = { queued:'Queued...', extracting:'Extracting PDF text...', analyzing:'Running Groq AI analysis...', building_excel:'Building Excel workbook...', complete:'Done!', error:'Error' };
+
+  function updateSteps(status) {
+    const order = ['extracting','analyzing','building_excel','complete'];
+    const idx = order.indexOf(status);
+    order.forEach((s,i) => {
+      const el = document.getElementById('step-'+s);
+      if (!el) return;
+      el.classList.remove('active','done');
+      if (i<idx) el.classList.add('done');
+      else if (i===idx) el.classList.add('active');
     });
   }
-  await worker.terminate();
-  setProgress(90,'Parsing labels…');
 
-  const labels=parseLines(itemsToLines(allItems));
-  if(labels.length>0){
-    if(getGroqKey()){
-      showLoading('AI Refining OCR labels…','Groq is cleaning up OCR text…');
-      const result=await groqCall('refine_labels',{labels:labels.slice(0,300),total:labels.length});
-      hideLoading();
-      if(result.ok&&result.labels&&result.labels.length) return result.labels;
-    }
-    return labels;
-  }
-  return [];
-}
-
-// ── Heuristic helpers ──────────────────────────────────────────
-
-function isNoise(s){
-  s=s.trim();
-  if(!s||s.length<=1) return true;
-  if(/^[-\u2013\u2014\/|\\_.,:;!?\xb7\u2022]+$/.test(s)) return true;
-  if(/^\d{1,3}$/.test(s)) return true;
-  if(/^Page\s+\d+(\s+of\s+\d+)?$/i.test(s)) return true;
-  if(/^\d+\s+of\s+\d+$/i.test(s)) return true;
-  if(/^(Page|of|and)$/i.test(s)) return true;
-  if(/^(TCPDF|Powered\s+by|FFCA)/i.test(s)) return true;
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return true;
-  return false;
-}
-
-// Names in ALL CAPS (PDF) or Title Case (spreadsheet)
-function isName(s){
-  s=s.trim();
-  if(!s) return false;
-  if(/\d/.test(s)) return false;
-  const words=s.split(/\s+/).filter(Boolean);
-  if(words.length<2) return false;
-  const letters=s.replace(/[^a-zA-Z]/g,'');
-  if(letters.length<4) return false;
-  if(letters.replace(/[^A-Z]/g,'').length/letters.length>=0.85) return true;
-  if(words.every(w=>/^[A-Z]/.test(w)&&/[a-z]/.test(w))) return true;
-  return false;
-}
-
-// Recognise class/teacher/room lines in ALL observed formats
-function isClassLine(s){
-  s=s.trim();
-  if(!s||s.length<2) return false;
-  // Standard English prefixes
-  if(/^(Grade|Class|Staff|Room|Gr\.?|Ms\.|Mr\.|Mrs\.|Dr\.)\s/i.test(s)) return true;
-  if(/\bG\s*\d/.test(s)) return true;
-  if(/\b(English|Spanish|French|Maths|Science)\s*$/i.test(s)) return true;
-  // "4FI", "4FI - Fulcher", "4FI-Fulcher"
-  if(/^\d+[A-Z]{1,5}(\s*[-\u2013\/\s]\s*\S.*)?$/i.test(s)) return true;
-  // "3/4", "3/4 - Jagdev", "1/2 - Fl Baptiste-Lacasse"
-  if(/^\d+\/\d+(\s*[-\u2013]\s*\S.*)?$/.test(s)) return true;
-  // "3 - Boparai", "7 - Leysa", "8 - Kissoon-Singh"
-  if(/^\d+\s*[-\u2013]\s*[A-Za-z]/i.test(s)) return true;
-  // "8 Lyons", "4 Tata" — digit + space + single capitalized word (no dash)
-  if(/^\d+\s+[A-Z][a-zA-Z-]{2,}$/.test(s)) return true;
-  // "- Fulcher", "- Mejia", "- Sinclair"
-  if(/^[-\u2013]\s+[A-Z][a-zA-Z-]+$/.test(s)) return true;
-  // "2FI-Marcil", "5F1-Wall"
-  if(/^[A-Z0-9]+-[A-Z][a-zA-Z]+$/.test(s)) return true;
-  return false;
-}
-
-// Remove lines that appear so frequently they must be headers/footers/school-name
-function filterFrequentNoise(lines){
-  if(lines.length<10) return lines;
-  const counts={};
-  lines.forEach(l=>{
-    const k=l.toLowerCase().replace(/[^a-z0-9]/g,'');
-    if(k.length>2) counts[k]=(counts[k]||0)+1;
-  });
-  const threshold=Math.max(4, Math.round(lines.length*0.04));
-  return lines.filter(l=>{
-    const k=l.toLowerCase().replace(/[^a-z0-9]/g,'');
-    return !k||counts[k]<threshold;
-  });
-}
-
-// Rejoin item lines that TCPDF word-wrapped within a label cell.
-// A line is "incomplete" if it has no -N quantity suffix AND isn't a name or class.
-// In that case the next line (if also not name/class) likely continues it.
-function joinWrappedItems(lines){
-  const out=[];
-  let i=0;
-  while(i<lines.length){
-    let line=lines[i];
-    // Keep merging forward while this line looks like a partial item
-    while(
-      i+1<lines.length&&
-      !isName(line)&&
-      !isClassLine(line)&&
-      !/-\d+$/.test(line.trim())&&        // doesn't already end with -N suffix
-      !/^\d/.test(lines[i+1])&&            // next line doesn't start with digit (new item or class)
-      !isName(lines[i+1])&&
-      !isClassLine(lines[i+1])
-    ){
-      i++;
-      line=line.trim()+' '+lines[i].trim();
-    }
-    out.push(line);
-    i++;
-  }
-  return out;
-}
-
-// Flat-line parser — handles class-before-name AND class-after-items
-function parseLines(raw){
-  // 1. Basic clean
-  let lines=raw.map(l=>l.trim()).filter(l=>l&&!isNoise(l));
-
-  // 2. Remove high-frequency header/footer/school-name lines
-  lines=filterFrequentNoise(lines);
-
-  // 3. Merge consecutive all-caps single words (OCR split artefact)
-  const merged=[];
-  for(let i=0;i<lines.length;i++){
-    if(/^[A-Z]{2,}$/.test(lines[i])&&i+1<lines.length&&/^[A-Z]{2,}$/.test(lines[i+1])){
-      merged.push(lines[i]+' '+lines[i+1]); i++;
-    }else{ merged.push(lines[i]); }
+  function pollStatus() {
+    pollingInterval = setInterval(async () => {
+      try {
+        const res = await fetch('/status/' + currentJobId);
+        const job = await res.json();
+        document.getElementById('statusLabel').textContent = statusLabels[job.status] || job.status;
+        document.getElementById('progressPct').textContent = job.progress + '%';
+        document.getElementById('progressFill').style.width = job.progress + '%';
+        updateSteps(job.status);
+        if (job.status === 'complete') { clearInterval(pollingInterval); globalJob = job; showResults(job); }
+        else if (job.status === 'error') { clearInterval(pollingInterval); showError(job.error || 'Processing failed'); resetBtn(); }
+      } catch(e) { console.error(e); }
+    }, 1200);
   }
 
-  // 4. Rejoin TCPDF-wrapped item fragments
-  const joined=joinWrappedItems(merged);
-
-  const labels=[];
-  let i=0;
-  while(i<joined.length){
-    if(!isName(joined[i])){i++;continue;}
-
-    const name=joined[i];
-
-    // Collect items — stop at next name OR class line
-    const items=[];
-    let j=i+1;
-    while(j<joined.length){
-      if(isName(joined[j])) break;
-      if(isClassLine(joined[j])) break;
-      const candidate=joined[j].replace(/^[-\u2013\u2014\u2022\xb7]\s*/,'').trim();
-      if(candidate&&!isNoise(candidate)) items.push(candidate);
-      j++;
-    }
-
-    // Pattern A: class appears directly before the name
-    let cls='';
-    let nextStart=j;
-    if(i>0&&isClassLine(joined[i-1])) cls=joined[i-1];
-
-    // Pattern B: class appears immediately after items
-    if(!cls&&j<joined.length&&isClassLine(joined[j])&&!isName(joined[j])){
-      cls=joined[j];
-      nextStart=j+1;
-    }
-
-    const clsNorm=cls.toLowerCase().replace(/[^a-z0-9]/g,'');
-    const filteredItems=items.filter(item=>{
-      const n=item.toLowerCase().replace(/[^a-z0-9]/g,'');
-      return !clsNorm||n!==clsNorm;
-    });
-
-    labels.push({class:cls, name, items:filteredItems});
-    i=nextStart;
-  }
-  return labels;
-}
-// ── Spreadsheet ────────────────────────────────────────────────
-async function parseSpreadsheet(file){
-  setProgress(20,'Reading spreadsheet…');
-  const buf=await file.arrayBuffer();
-  let wb;
-  try{wb=XLSX.read(buf,{type:'array'});}catch(e){throw new Error('Could not read spreadsheet: '+e.message);}
-  const sheet=wb.Sheets[wb.SheetNames[0]];
-  const rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:''});
-  if(!rows||rows.length<2)throw new Error('Spreadsheet appears to be empty.');
-
-  let aiMapping=null;
-  if(getGroqKey()){
-    setProgress(40,'AI analysing columns…');
-    showLoading('AI Column Detection…','Groq is mapping your spreadsheet…');
-    const headers=rows[0].map(String);
-    const samples=rows.slice(1,6);
-    const result=await groqCall('map_columns',{headers,samples});
-    hideLoading();
-    if(result.ok&&result.mapping) aiMapping=result.mapping;
-    else showWarn('AI column detection failed — using keyword fallback. '+(result.error||''));
+  function showResults(job) {
+    const a = job.analysis || {};
+    // Summary strip
+    document.getElementById('res-type').textContent = a.document_type || '—';
+    document.getElementById('res-pages').textContent = job.pages || '—';
+    document.getElementById('res-sentiment').textContent = a.sentiment || '—';
+    document.getElementById('res-lang').textContent = a.language || '—';
+    document.getElementById('res-summary').textContent = a.document_summary || '—';
+    document.getElementById('downloadBtn').href = '/download/' + currentJobId;
+    document.getElementById('summaryStrip').classList.add('show');
+    document.getElementById('groupedView').classList.add('show');
+    processBtn.textContent = '⚡ Analyze with Groq AI';
+    buildPageTab(job);
+    buildCategoryTab(a);
+    buildEntityTab(a);
+    buildTopicsTab(a);
   }
 
-  setProgress(50,'Waiting for column mapping…');
-  return await showMappingModal(rows, aiMapping);
-}
-// ── Column combiner state per field ───────────────────────────
-// colConfig[fieldKey] = { cols:[idx,...], sep:' ' }
-let colConfig = {};
+  // ── Tab: By Page ──────────────────────────────────────────────────────
+  function buildPageTab(job) {
+    const a = job.analysis || {};
+    const rawPages = job.raw_pages || [];
+    const facts = a.key_facts || [];
+    const entities = a.key_entities || [];
+    const container = document.getElementById('tab-pages');
+    container.innerHTML = '';
 
-function showMappingModal(rows, aiMapping){
-  return new Promise((resolve,reject)=>{
-    const headers = rows[0].map(String);
-    const tbody = $('mapping-tbody');
-    tbody.innerHTML = '';
-    colConfig = {};
+    const totalPages = job.pages || 0;
+    if (totalPages === 0) { container.innerHTML = '<div class="empty-state">No page data available.</div>'; return; }
 
-    const fields = [
-      {key:'name',  label:'Student Name',    required:true },
-      {key:'class', label:'Class / Teacher', required:false},
-      {key:'items', label:'Order Items',     required:false},
-    ];
+    for (let p = 1; p <= totalPages; p++) {
+      const pageRaw = rawPages.find(r => r.page === p) || {};
+      const pageFacts = facts.filter(f => f.page == p);
+      // guess entities on this page from context keywords in text
+      const pageText = (pageRaw.text || '').toLowerCase();
+      const pageEnts = entities.filter(e => pageText.includes((e.name||'').toLowerCase()));
 
-    // Multi-keyword scored auto-detection (fallback when no AI mapping)
-    const KEYWORD_SETS = {
-      name:    ['studentname','fullname','studentfullname','pupilname','childname','student','pupil','child','name'],
-      class:   ['classteacher','classroomteacher','homeroom','classroom','classname','formclass','formgroup','yeargroup','form','grade','room','class','yr','year','group'],
-      teacher: ['teachername','classteacher','tutor','instructor','teacher'],
-      items:   ['lunchorder','orderitems','foodorder','mealselection','lunchitem','mealitem','orderchoice','order','meal','lunch','items','item','selection','choice','menu','product'],
-    };
-    function autoDetectCol(hdrs, key) {
-      const kws = KEYWORD_SETS[key];
-      let bestIdx = -1, bestScore = 0;
-      hdrs.forEach((h, i) => {
-        const norm = h.toLowerCase().replace(/[^a-z0-9]/g,'');
-        kws.forEach((kw, ki) => {
-          if (norm.includes(kw)) {
-            const score = kws.length - ki;
-            if (score > bestScore) { bestScore = score; bestIdx = i; }
-          }
-        });
-      });
-      return bestIdx;
-    }
+      const group = document.createElement('div');
+      group.className = 'page-group';
 
-    // Use AI mapping if available, otherwise keyword fallback
-    const claimed = new Set();
-    fields.forEach(f => {
-      let idxArr = [];
-      let sep = ' ';
+      const previewText = (pageRaw.text || 'No text extracted').substring(0, 90);
 
-      if (aiMapping) {
-        // AI path: class may come back as an array of indices
-        if (f.key === 'class') {
-          const raw = aiMapping['class'];
-          sep = aiMapping['class_sep'] || ' - ';
-          if (Array.isArray(raw)) {
-            idxArr = raw.filter(v => v !== null && v !== undefined && !claimed.has(v));
-          } else if (raw !== null && raw !== undefined) {
-            const v = parseInt(raw);
-            if (!isNaN(v) && v >= 0 && v < headers.length && !claimed.has(v)) idxArr = [v];
-          }
-        } else {
-          const raw = aiMapping[f.key];
-          if (raw !== null && raw !== undefined) {
-            const v = parseInt(raw);
-            if (!isNaN(v) && v >= 0 && v < headers.length && !claimed.has(v)) idxArr = [v];
-          }
-        }
-      }
-
-      // Heuristic fallback if AI gave nothing for this field
-      if (!idxArr.length) {
-        const idx = autoDetectCol(headers, f.key);
-        if (idx >= 0 && !claimed.has(idx)) idxArr = [idx];
-
-        // For class field: also look for a separate teacher column and combine
-        if (f.key === 'class' && idxArr.length) {
-          const teacherIdx = autoDetectCol(headers, 'teacher');
-          if (teacherIdx >= 0 && teacherIdx !== idxArr[0] && !claimed.has(teacherIdx)) {
-            idxArr.push(teacherIdx);
-            sep = ' - ';
-          }
-        }
-      }
-
-      idxArr.forEach(v => claimed.add(v));
-      colConfig[f.key] = { cols: idxArr, sep };
-
-      const tr = document.createElement('tr');
-      tr.dataset.key = f.key;
-      tr.innerHTML = `
-        <td style="color:var(--text);font-weight:500;vertical-align:top;padding-top:10px;white-space:nowrap">
-          ${f.label}${f.required?' <span style="color:var(--danger)">*</span>':''}
-        </td>
-        <td style="width:100%">
-          <div class="col-combiner" id="combiner-${f.key}"></div>
-          <div style="display:flex;align-items:center;gap:6px;margin-top:7px;flex-wrap:wrap">
-            <select class="add-col-select" id="add-col-${f.key}"
-              style="background:var(--surface3);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:11px;font-family:inherit;outline:none;max-width:160px">
-              <option value="">+ Add column...</option>
-              ${headers.map((h,i)=>`<option value="${i}">${h||('col '+(i+1))}</option>`).join('')}
-            </select>
-            <span style="font-size:11px;color:var(--muted)">Join with:</span>
-            <select class="sep-select" id="sep-${f.key}"
-              style="background:var(--surface3);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:4px 8px;font-size:11px;font-family:inherit;outline:none;">
-              <option value=" ">Space</option>
-              <option value=", ">Comma</option>
-              <option value=" - ">Dash</option>
-              <option value=" | ">Pipe</option>
-              <option value="">None</option>
-            </select>
+      group.innerHTML = `
+        <div class="page-group-header ${p===1?'open':''}" onclick="togglePage(this)">
+          <div class="page-group-title">
+            <span class="page-badge">Page ${p}</span>
+            <span class="page-preview">${escHtml(previewText)}${pageRaw.text&&pageRaw.text.length>90?'…':''}</span>
           </div>
-        </td>`;
-      tbody.appendChild(tr);
-
-      renderChips(f.key, headers);
-
-      $('add-col-'+f.key).addEventListener('change', function(){
-        const v = this.value; if(v==='') return;
-        const idx = parseInt(v);
-        if(!colConfig[f.key].cols.includes(idx)){
-          colConfig[f.key].cols.push(idx);
-          renderChips(f.key, headers);
-          updatePreview();
-        }
-        this.value = '';
-      });
-      $('sep-'+f.key).value = colConfig[f.key].sep || ' ';
-      $('sep-'+f.key).addEventListener('change', function(){
-        colConfig[f.key].sep = this.value;
-        renderChips(f.key, headers);
-        updatePreview();
-      });
-    });
-
-    function renderChips(key, hdrs){
-      const wrap = $('combiner-'+key);
-      wrap.innerHTML = '';
-      if(!colConfig[key].cols.length){
-        wrap.innerHTML='<span style="font-size:11px;color:var(--subtle);font-style:italic">No columns selected</span>';
-        return;
-      }
-      colConfig[key].cols.forEach((ci,pos)=>{
-        if(pos>0){
-          const arrow = document.createElement('span');
-          arrow.className = 'col-chip-sep';
-          arrow.textContent = colConfig[key].sep || '+';
-          wrap.appendChild(arrow);
-        }
-        const chip = document.createElement('span');
-        chip.className = 'col-chip';
-        chip.innerHTML = `${esc(hdrs[ci]||('col '+(ci+1)))} <button class="chip-rm" title="Remove">x</button>`;
-        chip.querySelector('.chip-rm').addEventListener('click', e=>{
-          e.preventDefault();
-          colConfig[key].cols.splice(pos,1);
-          renderChips(key,hdrs);
-          updatePreview();
-        });
-        wrap.appendChild(chip);
-      });
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="page-tags">
+              ${pageFacts.length ? `<span class="mini-tag">${pageFacts.length} facts</span>` : ''}
+              ${pageEnts.length ? `<span class="mini-tag">${pageEnts.length} entities</span>` : ''}
+              ${pageRaw.tables ? `<span class="mini-tag">table</span>` : ''}
+            </div>
+            <span class="chevron">▼</span>
+          </div>
+        </div>
+        <div class="page-group-body ${p===1?'open':''}">
+          ${pageRaw.text ? `
+            <div class="section-mini-title">Raw Text</div>
+            <div class="page-text">${escHtml(pageRaw.text)}</div>
+          ` : ''}
+          ${pageRaw.tables ? `
+            <div class="section-mini-title">Table Data</div>
+            <div class="page-text" style="color:#06b6d4">${escHtml(pageRaw.tables)}</div>
+          ` : ''}
+          ${pageFacts.length ? `
+            <div class="section-mini-title">Facts Found on This Page</div>
+            <div class="page-facts">
+              ${pageFacts.map(f=>`
+                <div class="page-fact-item">
+                  <span class="fact-cat">${escHtml(f.category||'General')}</span>
+                  <span class="fact-text">${escHtml(f.fact)}</span>
+                </div>`).join('')}
+            </div>
+          ` : ''}
+          ${pageEnts.length ? `
+            <div class="section-mini-title">Entities Mentioned</div>
+            <div class="page-entities-row">
+              ${pageEnts.map(e=>`
+                <div class="entity-pill">
+                  <span class="entity-pill-name">${escHtml(e.name)}</span>
+                  <span class="entity-pill-type">${escHtml(e.type)}</span>
+                </div>`).join('')}
+            </div>
+          ` : ''}
+          ${!pageRaw.text && !pageFacts.length ? '<div style="color:var(--muted);font-size:12px;padding:8px 0">No content extracted for this page.</div>' : ''}
+        </div>
+      `;
+      container.appendChild(group);
     }
+  }
 
-    function getCombined(row,key){
-      const cfg=colConfig[key];
-      if(!cfg.cols.length) return '';
-      return cfg.cols.map(ci=>String(row[ci]||'').trim()).filter(Boolean).join(cfg.sep);
-    }
+  function togglePage(header) {
+    header.classList.toggle('open');
+    header.nextElementSibling.classList.toggle('open');
+  }
 
-    function updatePreview(){
-      if(!colConfig['name'].cols.length){$('map-preview').style.display='none';return;}
-      const cards=$('map-preview-cards'); cards.innerHTML='';
-      rows.slice(1,4).forEach(row=>{
-        const name=getCombined(row,'name'); if(!name) return;
-        const cls=getCombined(row,'class');
-        const itm=getCombined(row,'items');
-        cards.innerHTML+=`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px">
-          <strong>${esc(name)}</strong>${cls?` <span style="color:var(--muted)">(${esc(cls)})</span>`:''}
-          <br><span style="color:var(--muted)">${esc(itm)||'(no items)'}</span></div>`;
-      });
-      $('map-preview').style.display='block';
-    }
-    updatePreview();
+  // ── Tab: By Category ─────────────────────────────────────────────────
+  function buildCategoryTab(a) {
+    const facts = a.key_facts || [];
+    const container = document.getElementById('tab-categories');
+    container.innerHTML = '';
 
-    $('map-modal').classList.add('show');
-    // Show AI badge in modal header if AI was used
-    const modalHead=$('map-modal').querySelector('.modal-head h3');
-    if(modalHead){
-      modalHead.innerHTML = aiMapping
-        ? '📊 Map Spreadsheet Columns <span style="font-size:10px;background:rgba(91,106,240,.2);border:1px solid var(--accent);color:var(--accent3);padding:1px 7px;border-radius:10px;font-family:\'DM Mono\',monospace;font-weight:700;margin-left:6px">AI</span>'
-        : '📊 Map Spreadsheet Columns';
-    }
-    const close=()=>$('map-modal').classList.remove('show');
-    $('map-modal-close').onclick=$('map-modal-cancel').onclick=()=>{close();reject(new Error('Cancelled.'));};
-
-    $('map-modal-confirm').onclick=()=>{
-      if(!colConfig['name'].cols.length){showWarn('Please add at least one column for Student Name.');return;}
-      const labels=[];
-      rows.slice(1).forEach(row=>{
-        const name=getCombined(row,'name'); if(!name) return;
-        const cls=getCombined(row,'class');
-        const rawItems=getCombined(row,'items');
-        const clsNorm=cls.toLowerCase().replace(/[^a-z0-9]/g,'');
-        const items=rawItems
-          ? rawItems.split(/[,\n]+/)
-              .map(s=>s.trim().replace(/^[-–—•·]\s*/,''))
-              .filter(s=>{
-                if(!s) return false;
-                // Only suppress EXACT match — never strip suffixes like "-1"
-                const sNorm=s.toLowerCase().replace(/[^a-z0-9]/g,'');
-                if(clsNorm && sNorm===clsNorm) return false;
-                return true;
-              })
-          : [];
-        labels.push({class:cls,name,items});
-      });
-      close();
-      if(!labels.length){reject(new Error('No valid rows found.'));return;}
-      resolve(labels);
+    const catColors = {
+      Financial: '#10b981', Technical: '#06b6d4', Legal: '#f59e0b',
+      General: '#8b5cf6', Date: '#ec4899', Contact: '#3b82f6', Other: '#64748b'
     };
-  });
-}
+    const catIcons = {
+      Financial:'💰', Technical:'⚙️', Legal:'⚖️', General:'📌', Date:'📅', Contact:'📞', Other:'📎'
+    };
 
-// ══ FILTER + GRID ══════════════════════════════════════════════
-searchInput.addEventListener('input',()=>{currentPage=1;applyFilter();});
-filterClass.addEventListener('change',()=>{currentPage=1;applyFilter();});
-
-function applyFilter(){
-  const q=searchInput.value.toLowerCase(),cls=filterClass.value;
-  filtered=allLabels.filter(l=>{
-    if(cls&&l.class!==cls)return false;
-    if(q)return l.name.toLowerCase().includes(q)||l.class.toLowerCase().includes(q)||l.items.some(i=>i.toLowerCase().includes(q));
-    return true;
-  });
-  if(sortByClass&&sortByName)filtered.sort((a,b)=>{const cc=a.class.localeCompare(b.class);if(cc!==0)return cc;return fn(a).localeCompare(fn(b));});
-  else if(sortByClass)filtered.sort((a,b)=>a.class.localeCompare(b.class));
-  else if(sortByName)filtered.sort((a,b)=>fn(a).localeCompare(fn(b)));
-  renderGrid();renderPagination();
-  $('badge-count').textContent=filtered.length;
-}
-const fn=l=>l.name.split(' ')[0]||'';
-
-function buildClassFilter(){
-  const classes=[...new Set(allLabels.map(l=>l.class))].sort();
-  filterClass.innerHTML='<option value="">All classes</option>';
-  classes.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;filterClass.appendChild(o);});
-}
-
-function renderGrid(){
-  labelGrid.innerHTML='';
-  const start=(currentPage-1)*PER_VIEW,slice=filtered.slice(start,start+PER_VIEW);
-  if(!slice.length){labelGrid.innerHTML='<div class="empty-state"><div class="icon">🔍</div><p>No labels match</p></div>';return;}
-  slice.forEach((l,i)=>{
-    const d=document.createElement('div');
-    d.className='label-card'+(selectedIds.has(l._id)?' selected':'');
-    d.dataset.id=l._id;
-    d.innerHTML=`
-      <span class="lc-num">#${start+i+1}</span>
-      <div class="sel-check">✓</div>
-      <div class="lc-class"><span class="lc-dot"></span>${esc(l.class)}</div>
-      <div class="lc-name">${esc(l.name)}</div>
-      <hr>
-      ${l.items.map(x=>`<div class="lc-item">${esc(x)}</div>`).join('')}
-    `;
-    // edit button
-    const eb=document.createElement('button');
-    eb.className='btn-icon btn-sm edit-btn';eb.title='Edit (or double-click)';eb.innerHTML='✏️';eb.style.cssText='position:absolute;bottom:5px;right:5px;font-size:11px;';
-    eb.addEventListener('click',e=>{e.stopPropagation();openEditModal(l._id);});
-    d.appendChild(eb);
-    d.addEventListener('click',()=>toggleSelect(l._id,d));
-    d.addEventListener('dblclick',()=>openEditModal(l._id));
-    labelGrid.appendChild(d);
-  });
-  updateSelectInfo();
-}
-
-function toggleSelect(id,el){
-  if(selectedIds.has(id)){selectedIds.delete(id);el.classList.remove('selected');}
-  else{selectedIds.add(id);el.classList.add('selected');}
-  updateStats();updateSelectInfo();
-}
-function updateSelectInfo(){
-  const sel=filtered.filter(l=>selectedIds.has(l._id)).length;
-  $('select-info').textContent=`${sel} of ${filtered.length} visible selected · Double-click to edit`;
-}
-
-$('btn-select-all').addEventListener('click',()=>{allLabels.forEach(l=>selectedIds.add(l._id));renderGrid();updateStats();});
-$('btn-deselect-all').addEventListener('click',()=>{selectedIds.clear();renderGrid();updateStats();});
-
-// ══ EDIT MODAL ═════════════════════════════════════════════════
-function openEditModal(id){
-  const l=allLabels.find(x=>x._id===id); if(!l)return;
-  editingId=id; $('edit-name').value=l.name; $('edit-class').value=l.class; $('edit-items').value=l.items.join('\n');
-  $('edit-modal').classList.add('show');
-}
-$('edit-modal-close').addEventListener('click',()=>{$('edit-modal').classList.remove('show');editingId=null;});
-$('edit-modal-cancel').addEventListener('click',()=>{$('edit-modal').classList.remove('show');editingId=null;});
-$('edit-modal-save').addEventListener('click',()=>{
-  if(editingId===null)return;
-  const l=allLabels.find(x=>x._id===editingId); if(!l)return;
-  l.name=$('edit-name').value.trim(); l.class=$('edit-class').value.trim();
-  l.items=$('edit-items').value.split('\n').map(s=>s.trim()).filter(Boolean);
-  $('edit-modal').classList.remove('show'); editingId=null;
-  applyFilter(); updateStats(); showSuccess('✅ Label updated.');
-});
-
-// ══ STATS ══════════════════════════════════════════════════════
-function updateStats(){
-  const cols=parseInt($('cfg-cols').value)||3,rows=parseInt($('cfg-rows').value)||10;
-  const sel=allLabels.filter(l=>selectedIds.has(l._id));
-  $('stat-labels').textContent=allLabels.length;
-  $('stat-selected').textContent=sel.length;
-  $('stat-pages').textContent=Math.ceil(sel.length/(cols*rows));
-  $('stat-classes').textContent=new Set(allLabels.map(l=>l.class)).size;
-}
-
-// ══ PAGINATION ═════════════════════════════════════════════════
-function renderPagination(){
-  pagination.innerHTML='';
-  const total=Math.ceil(filtered.length/PER_VIEW); if(total<=1)return;
-  const mk=(txt,pg,dis,act)=>{const b=document.createElement('button');b.className='page-btn'+(act?' active':'');b.textContent=txt;b.disabled=!!dis;if(!dis)b.onclick=()=>{currentPage=pg;renderGrid();renderPagination();};return b;};
-  pagination.appendChild(mk('← Prev',currentPage-1,currentPage===1));
-  for(let i=1;i<=total;i++){
-    if(total>7&&Math.abs(i-currentPage)>2&&i!==1&&i!==total){if(i===currentPage-3||i===currentPage+3){const s=document.createElement('span');s.textContent='…';s.style.color='var(--muted)';pagination.appendChild(s);}continue;}
-    pagination.appendChild(mk(i,i,false,i===currentPage));
-  }
-  pagination.appendChild(mk('Next →',currentPage+1,currentPage===total));
-}
-
-// ══ DOWNLOAD ═══════════════════════════════════════════════════
-btnDownload.addEventListener('click',async()=>{
-  let send=allLabels.filter(l=>selectedIds.has(l._id));
-  if(!send.length){showWarn('No labels selected. Click labels to toggle selection, or use ☑ All.');return;}
-  showLoading('Generating PDF…',`Sending ${send.length} labels to server…`);
-  if(sortByClass&&sortByName)send.sort((a,b)=>{const cc=a.class.localeCompare(b.class);if(cc!==0)return cc;return fn(a).localeCompare(fn(b));});
-  else if(sortByClass)send.sort((a,b)=>a.class.localeCompare(b.class));
-  else if(sortByName)send.sort((a,b)=>fn(a).localeCompare(fn(b)));
-  const fd=new FormData();
-  fd.append('action','generate');
-  fd.append('labels',JSON.stringify(send));
-  fd.append('cols',$('cfg-cols').value);fd.append('rows',$('cfg-rows').value);
-  fd.append('margin_left',$('cfg-ml').value);fd.append('margin_top',$('cfg-mt').value);
-  fd.append('margin_right',$('cfg-mr').value);fd.append('margin_bottom',$('cfg-mb').value);
-  fd.append('label_width',$('cfg-lw').value);fd.append('label_height',$('cfg-lh').value);
-  fd.append('col_gap',$('cfg-cg').value);fd.append('row_gap',$('cfg-rg').value);
-  fd.append('show_border',showBorder?'1':'0');
-  fd.append('sort_class',sortByClass?'1':'0');
-  fd.append('sort_name',sortByName?'1':'0');
-  fd.append('field_order',JSON.stringify(fieldOrder));
-  fd.append('font_name',$('font-name').value);
-  fd.append('font_class',$('font-class').value);
-  fd.append('font_items',$('font-items').value);
-  fd.append('font_autoscale',$('font-autoscale').value);
-  fd.append('filename',currentFile?currentFile.name.replace(/\.(pdf|xlsx|xls|csv)$/i,''):'labels');
-  try{
-    const res=await fetch('ajax.php',{method:'POST',body:fd});
-    if(!res.ok){showError('Server error during PDF generation.');return;}
-    const ct=res.headers.get('Content-Type')||'';
-    if(ct.includes('application/json')){const d=await res.json();showError(d.error||'Unknown error');return;}
-    const blob=await res.blob();
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;a.download=(currentFile?currentFile.name.replace(/\.(pdf|xlsx|xls|csv)$/i,''):'labels')+'_labels.pdf';
-    a.click();URL.revokeObjectURL(url);
-    showSuccess('✅ PDF downloaded successfully!');
-  }catch(e){showError('Download failed: '+e.message);}
-  finally{hideLoading();}
-});
-
-// ══ GROQ VISION SCAN ═══════════════════════════════════════════
-const scanBtn=$('btn-scan-sheet');
-const scanFileInput=$('scan-file-input');
-const scanAlertError=$('scan-alert-error');
-const scanAlertSuccess=$('scan-alert-success');
-const scanLoading=$('scan-loading');
-
-function scanShowError(msg){scanAlertError.textContent=msg;scanAlertError.style.display='block';scanAlertSuccess.style.display='none';}
-function scanShowSuccess(msg){scanAlertSuccess.textContent=msg;scanAlertSuccess.style.display='block';scanAlertError.style.display='none';}
-function scanHideAlerts(){scanAlertError.style.display='none';scanAlertSuccess.style.display='none';}
-function scanShowLoading(v){scanLoading.style.display=v?'flex':'none';}
-
-scanBtn.addEventListener('click',()=>{
-  if(!getGroqKey()){scanShowError('Add your Groq API key in the AI Assistant card above first.');return;}
-  scanFileInput.value='';
-  scanFileInput.click();
-});
-
-scanFileInput.addEventListener('change',async()=>{
-  const file=scanFileInput.files[0]; if(!file)return;
-  if(!getGroqKey()){scanShowError('No Groq API key set.');return;}
-  scanHideAlerts();scanShowLoading(true);scanBtn.disabled=true;
-  try{
-    const base64=await new Promise((res,rej)=>{
-      const r=new FileReader();
-      r.onload=()=>res(r.result);
-      r.onerror=()=>rej(new Error('Failed to read image'));
-      r.readAsDataURL(file);
+    const grouped = {};
+    facts.forEach(f => {
+      const cat = f.category || 'General';
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(f);
     });
-    const fd=new FormData();
-    fd.append('image',base64);
-    fd.append('groq_api_key',getGroqKey());
-    const resp=await fetch('scan.php',{method:'POST',body:fd});
-    const data=await resp.json();
-    if(data.error){scanShowError('Groq error: '+data.error);return;}
-    const L=data.layout||{};
-    if(L.cols)    $('cfg-cols').value=L.cols;
-    if(L.rows)    $('cfg-rows').value=L.rows;
-    if(L.margin_left   !=null) $('cfg-ml').value=L.margin_left;
-    if(L.margin_top    !=null) $('cfg-mt').value=L.margin_top;
-    if(L.margin_right  !=null) $('cfg-mr').value=L.margin_right;
-    if(L.margin_bottom !=null) $('cfg-mb').value=L.margin_bottom;
-    if(L.label_width   !=null) $('cfg-lw').value=L.label_width;
-    if(L.label_height  !=null) $('cfg-lh').value=L.label_height;
-    if(L.col_gap       !=null) $('cfg-cg').value=L.col_gap;
-    if(L.row_gap       !=null) $('cfg-rg').value=L.row_gap;
-    document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
-    scanShowSuccess('✅ Layout detected! Check values below and adjust if needed.');
-    if(allLabels.length)updateStats();
-  }catch(e){
-    scanShowError('Scan failed: '+e.message);
-  }finally{
-    scanShowLoading(false);scanBtn.disabled=false;
+
+    if (Object.keys(grouped).length === 0) {
+      container.innerHTML = '<div class="empty-state">No categorized facts found.</div>'; return;
+    }
+
+    // Sort categories by count desc
+    const sorted = Object.entries(grouped).sort((a,b) => b[1].length - a[1].length);
+
+    sorted.forEach(([cat, catFacts]) => {
+      const color = catColors[cat] || catColors.Other;
+      const icon = catIcons[cat] || catIcons.Other;
+      const div = document.createElement('div');
+      div.className = 'cat-group';
+      div.innerHTML = `
+        <div class="cat-header">
+          <div class="cat-dot" style="background:${color}"></div>
+          <span style="font-size:16px">${icon}</span>
+          <span class="cat-title">${escHtml(cat)}</span>
+          <span class="cat-count">${catFacts.length} item${catFacts.length!==1?'s':''}</span>
+        </div>
+        <div class="cat-facts-grid">
+          ${catFacts.map(f=>`
+            <div class="cat-fact-card" style="border-left:3px solid ${color}">
+              <div class="cat-fact-text">${escHtml(f.fact)}</div>
+              <div class="cat-fact-meta">
+                <span>Page ${f.page||'?'}</span>
+                <span>${escHtml(f.category||'General')}</span>
+              </div>
+            </div>`).join('')}
+        </div>
+      `;
+      container.appendChild(div);
+    });
   }
-});
 
-$('btn-groq-info').addEventListener('click',()=>{
-  showSuccess('📷 Photograph your blank label sheet and upload the image. Groq AI measures the grid and pre-fills the settings. Get a free key at console.groq.com.');
-});
+  // ── Tab: By Entity Type ───────────────────────────────────────────────
+  function buildEntityTab(a) {
+    const entities = a.key_entities || [];
+    const container = document.getElementById('tab-entities');
+    container.innerHTML = '';
 
-// ══ HELPERS ════════════════════════════════════════════════════
-function showLoading(msg,sub){loadingMsg.textContent=msg||'';loadingSub.textContent=sub||'';loadingEl.classList.add('show');}
-function hideLoading(){loadingEl.classList.remove('show');}
-function showProgressBar(){progressWrap.style.display='block';}
-function hideProgressBar(){progressWrap.style.display='none';}
-function setProgress(pct,lbl){progressBar.style.width=pct+'%';progressLbl.textContent=lbl;}
-function showError(msg){alertError.textContent=msg;alertError.style.display='block';alertSuccess.style.display='none';alertWarn.style.display='none';}
-function showSuccess(msg){alertSuccess.textContent=msg;alertSuccess.style.display='block';alertError.style.display='none';alertWarn.style.display='none';}
-function showWarn(msg){alertWarn.textContent=msg;alertWarn.style.display='block';alertError.style.display='none';alertSuccess.style.display='none';}
-function hideAlerts(){alertError.style.display='none';alertSuccess.style.display='none';alertWarn.style.display='none';}
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    const typeIcons = {
+      Person:'🧑', Organization:'🏢', Location:'📍', Date:'📅',
+      Amount:'💵', Product:'📦', Other:'🔷'
+    };
+
+    const grouped = {};
+    entities.forEach(e => {
+      const t = e.type || 'Other';
+      if (!grouped[t]) grouped[t] = [];
+      grouped[t].push(e);
+    });
+
+    if (Object.keys(grouped).length === 0) {
+      container.innerHTML = '<div class="empty-state">No entities found.</div>'; return;
+    }
+
+    const sorted = Object.entries(grouped).sort((a,b) => b[1].length - a[1].length);
+
+    sorted.forEach(([type, ents]) => {
+      const icon = typeIcons[type] || typeIcons.Other;
+      const div = document.createElement('div');
+      div.className = 'ent-type-group';
+      div.innerHTML = `
+        <div class="ent-type-header">
+          <span class="ent-type-icon">${icon}</span>
+          <span class="ent-type-title">${escHtml(type)}</span>
+          <span class="ent-type-count">${ents.length} found</span>
+        </div>
+        <div class="ent-cards-grid">
+          ${ents.map(e=>`
+            <div class="ent-card">
+              <div class="ent-card-name">${escHtml(e.name)}</div>
+              <div class="ent-card-context">${escHtml(e.context||'')}</div>
+            </div>`).join('')}
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  // ── Tab: Topics & Actions ─────────────────────────────────────────────
+  function buildTopicsTab(a) {
+    const topics = a.main_topics || [];
+    const actions = a.action_items || [];
+    const container = document.getElementById('tab-topics');
+
+    container.innerHTML = `
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">Main Topics</div>
+        ${topics.length ? `
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            ${topics.map((t,i)=>`
+              <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--surface);border-radius:10px;border-left:3px solid #7c3aed">
+                <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);min-width:20px">${String(i+1).padStart(2,'0')}</span>
+                <span style="font-size:14px;color:var(--text)">${escHtml(t)}</span>
+              </div>`).join('')}
+          </div>
+        ` : '<div class="empty-state">No topics extracted.</div>'}
+      </div>
+      <div class="card">
+        <div class="card-title">Action Items & Recommendations</div>
+        ${actions.length ? `
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            ${actions.map((ac,i)=>`
+              <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 18px;background:var(--surface);border-radius:10px;border-left:3px solid #10b981">
+                <span style="font-size:16px;margin-top:1px">➤</span>
+                <span style="font-size:13px;color:var(--text);line-height:1.6">${escHtml(ac)}</span>
+              </div>`).join('')}
+          </div>
+        ` : '<div class="empty-state">No action items found.</div>'}
+      </div>
+    `;
+  }
+
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+name).classList.add('active');
+  }
+
+  function escHtml(str) {
+    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function resetAll() {
+    removeFile();
+    currentJobId = null; globalJob = null;
+    if (pollingInterval) clearInterval(pollingInterval);
+    document.getElementById('progressSection').classList.remove('show');
+    document.getElementById('summaryStrip').classList.remove('show');
+    document.getElementById('groupedView').classList.remove('show');
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('progressPct').textContent = '0%';
+    document.getElementById('statusLabel').textContent = 'Initializing...';
+    processBtn.disabled = true;
+    processBtn.textContent = '⚡ Analyze with Groq AI';
+    hideError();
+    ['extracting','analyzing','building_excel','complete'].forEach(s => {
+      const el = document.getElementById('step-'+s);
+      if (el) el.classList.remove('active','done');
+    });
+    // Reset tabs
+    document.querySelectorAll('.tab-btn').forEach((b,i) => { b.classList.toggle('active', i===0); });
+    document.querySelectorAll('.tab-panel').forEach((p,i) => { p.classList.toggle('active', i===0); });
+  }
 </script>
 </body>
 </html>
