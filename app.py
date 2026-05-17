@@ -13,13 +13,15 @@ import werkzeug.utils
 
 app = Flask(__name__)
 
+# Use /tmp for Render (ephemeral filesystem)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = '/tmp/uploads'
 OUTPUT_FOLDER = '/tmp/outputs'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['OUTPUT_FOLDER'] = 'outputs'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB
 
 # In-memory job store
@@ -47,20 +49,18 @@ def extract_pdf_text(pdf_path):
 def categorize_with_groq(pages_text, api_key, filename, job_id):
     """Use Groq AI to categorize PDF content."""
     client = Groq(api_key=api_key)
-    
+
     jobs[job_id]["status"] = "extracting"
     jobs[job_id]["progress"] = 20
 
-    # Build a condensed version of the document
     full_text_parts = []
     for p in pages_text:
         chunk = f"[Page {p['page']}]\n{p['text']}"
         if p['tables']:
             chunk += f"\n[Tables]\n{p['tables']}"
         full_text_parts.append(chunk)
-    
+
     full_text = "\n\n".join(full_text_parts)
-    # Truncate to avoid token limits
     if len(full_text) > 12000:
         full_text = full_text[:12000] + "\n...[truncated for processing]"
 
@@ -98,16 +98,15 @@ Extract at least 5 key_entities and 8 key_facts if present in the document."""
         temperature=0.1,
         max_tokens=2000
     )
-    
+
     raw = response.choices[0].message.content.strip()
-    
-    # Clean up response
+
     if raw.startswith("```"):
         raw = raw.split("```")[1]
         if raw.startswith("json"):
             raw = raw[4:]
     raw = raw.strip().rstrip("```").strip()
-    
+
     result = json.loads(raw)
     jobs[job_id]["status"] = "building_excel"
     jobs[job_id]["progress"] = 75
@@ -116,8 +115,7 @@ Extract at least 5 key_entities and 8 key_facts if present in the document."""
 def build_excel(filename, pages_text, analysis, output_path):
     """Build a nicely formatted Excel workbook."""
     wb = Workbook()
-    
-    # Color palette
+
     DARK_BG = "1A1A2E"
     ACCENT = "E94560"
     MID = "16213E"
@@ -154,10 +152,9 @@ def build_excel(filename, pages_text, analysis, output_path):
 
     # ─── Sheet 1: Summary ───────────────────────────────────────────────
     ws1 = wb.active
-    ws1.title = "📋 Summary"
+    ws1.title = "Summary"
     ws1.sheet_view.showGridLines = False
 
-    # Title banner
     ws1.row_dimensions[1].height = 40
     ws1.merge_cells("A1:F1")
     title_cell = ws1.cell(1, 1, "PDF INTELLIGENCE REPORT")
@@ -172,7 +169,6 @@ def build_excel(filename, pages_text, analysis, output_path):
     sub_cell.fill = PatternFill("solid", start_color=MID)
     sub_cell.alignment = Alignment(horizontal="center", vertical="center")
 
-    # Summary fields
     fields = [
         ("Document Type", analysis.get("document_type", "Unknown")),
         ("Language", analysis.get("language", "Unknown")),
@@ -183,7 +179,7 @@ def build_excel(filename, pages_text, analysis, output_path):
     ]
 
     row = 4
-    ws1.row_dimensions[3].height = 10  # spacer
+    ws1.row_dimensions[3].height = 10
     for label, value in fields:
         ws1.row_dimensions[row].height = 35 if label == "Document Summary" else 22
         hdr(ws1, row, 1, label, size=10, bg=ACCENT)
@@ -194,7 +190,6 @@ def build_excel(filename, pages_text, analysis, output_path):
         ws1.merge_cells(f"B{row}:F{row}")
         row += 1
 
-    # Topics
     row += 1
     ws1.row_dimensions[row].height = 22
     ws1.merge_cells(f"A{row}:F{row}")
@@ -202,11 +197,10 @@ def build_excel(filename, pages_text, analysis, output_path):
     row += 1
     for i, topic in enumerate(analysis.get("main_topics", [])):
         ws1.row_dimensions[row].height = 20
-        val(ws1, row, 1, f"  ✦  {topic}", bg=ROW_ALT if i % 2 == 0 else ROW_NORM)
+        val(ws1, row, 1, f"  *  {topic}", bg=ROW_ALT if i % 2 == 0 else ROW_NORM)
         ws1.merge_cells(f"A{row}:F{row}")
         row += 1
 
-    # Action items
     action_items = analysis.get("action_items", [])
     if action_items:
         row += 1
@@ -215,7 +209,7 @@ def build_excel(filename, pages_text, analysis, output_path):
         row += 1
         for i, item in enumerate(action_items):
             ws1.row_dimensions[row].height = 22
-            val(ws1, row, 1, f"  ➤  {item}", bg=ROW_ALT if i % 2 == 0 else ROW_NORM, wrap=True)
+            val(ws1, row, 1, f"  > {item}", bg=ROW_ALT if i % 2 == 0 else ROW_NORM, wrap=True)
             ws1.merge_cells(f"A{row}:F{row}")
             row += 1
 
@@ -224,7 +218,7 @@ def build_excel(filename, pages_text, analysis, output_path):
         ws1.column_dimensions[col].width = 20
 
     # ─── Sheet 2: Key Entities ───────────────────────────────────────────
-    ws2 = wb.create_sheet("👤 Entities")
+    ws2 = wb.create_sheet("Entities")
     ws2.sheet_view.showGridLines = False
 
     ws2.row_dimensions[1].height = 35
@@ -255,7 +249,7 @@ def build_excel(filename, pages_text, analysis, output_path):
     ws2.column_dimensions["C"].width = 55
 
     # ─── Sheet 3: Key Facts ──────────────────────────────────────────────
-    ws3 = wb.create_sheet("📊 Key Facts")
+    ws3 = wb.create_sheet("Key Facts")
     ws3.sheet_view.showGridLines = False
 
     ws3.row_dimensions[1].height = 35
@@ -286,7 +280,7 @@ def build_excel(filename, pages_text, analysis, output_path):
     ws3.column_dimensions["C"].width = 10
 
     # ─── Sheet 4: Raw Text ───────────────────────────────────────────────
-    ws4 = wb.create_sheet("📄 Raw Text")
+    ws4 = wb.create_sheet("Raw Text")
     ws4.sheet_view.showGridLines = False
 
     ws4.row_dimensions[1].height = 35
