@@ -12,6 +12,12 @@ from openpyxl.utils import get_column_letter
 import werkzeug.utils
 
 app = Flask(__name__)
+
+UPLOAD_FOLDER = '/tmp/uploads'
+OUTPUT_FOLDER = '/tmp/outputs'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['OUTPUT_FOLDER'] = 'outputs'
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB
