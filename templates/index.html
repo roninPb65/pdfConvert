@@ -8,294 +8,224 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #06060f;
-    --surface: #0d0d1a;
-    --card: #111122;
-    --border: #1e1e35;
-    --accent: #7c3aed;
-    --accent2: #06b6d4;
-    --accent3: #f59e0b;
-    --success: #10b981;
-    --error: #ef4444;
-    --text: #e2e8f0;
-    --muted: #64748b;
-    --glow: rgba(124, 58, 237, 0.15);
+    --bg: #06060f; --surface: #0d0d1a; --card: #111122; --border: #1e1e35;
+    --accent: #7c3aed; --accent2: #06b6d4; --success: #10b981;
+    --error: #ef4444; --text: #e2e8f0; --muted: #64748b;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
   body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(124,58,237,0.04) 1px,transparent 1px), linear-gradient(90deg,rgba(124,58,237,0.04) 1px,transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
   }
   body::after {
-    content: '';
-    position: fixed;
-    top: -200px; right: -200px;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-    animation: drift 8s ease-in-out infinite alternate;
+    content: ''; position: fixed; top: -200px; right: -200px; width: 600px; height: 600px;
+    background: radial-gradient(circle,rgba(124,58,237,0.12) 0%,transparent 70%);
+    pointer-events: none; z-index: 0; animation: drift 8s ease-in-out infinite alternate;
   }
-  @keyframes drift { from { transform: translate(0,0); } to { transform: translate(-60px,60px); } }
+  @keyframes drift { from{transform:translate(0,0)} to{transform:translate(-60px,60px)} }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-  .container { max-width: 960px; margin: 0 auto; padding: 60px 24px 100px; position: relative; z-index: 1; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 60px 24px 100px; position: relative; z-index: 1; }
 
-  /* ── Header ── */
+  /* Header */
   header { text-align: center; margin-bottom: 56px; }
   .badge {
     display: inline-flex; align-items: center; gap: 6px;
     background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
-    border-radius: 100px; padding: 6px 16px;
-    font-size: 11px; font-family: 'DM Mono', monospace;
-    color: #a78bfa; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px;
+    border-radius: 100px; padding: 6px 16px; font-size: 11px;
+    font-family: 'DM Mono', monospace; color: #a78bfa; letter-spacing: 0.08em;
+    text-transform: uppercase; margin-bottom: 20px;
   }
-  .badge::before {
-    content: ''; width: 6px; height: 6px; border-radius: 50%;
-    background: #7c3aed; box-shadow: 0 0 8px #7c3aed; animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .badge::before { content:''; width:6px; height:6px; border-radius:50%; background:#7c3aed; box-shadow:0 0 8px #7c3aed; animation:pulse 2s infinite; }
   h1 {
-    font-family: 'Syne', sans-serif; font-size: clamp(36px,6vw,58px);
+    font-family: 'Syne', sans-serif; font-size: clamp(32px,5vw,52px);
     font-weight: 800; line-height: 1.1; letter-spacing: -0.02em;
-    background: linear-gradient(135deg, #e2e8f0 0%, #a78bfa 50%, #06b6d4 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text; margin-bottom: 16px;
+    background: linear-gradient(135deg,#e2e8f0 0%,#a78bfa 50%,#06b6d4 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 14px;
   }
-  .subtitle { font-size: 16px; color: var(--muted); font-weight: 300; max-width: 500px; margin: 0 auto; line-height: 1.6; }
+  .subtitle { font-size: 15px; color: var(--muted); font-weight: 300; max-width: 480px; margin: 0 auto; line-height: 1.6; }
 
-  /* ── Card ── */
-  .card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 20px; padding: 36px; margin-bottom: 24px;
-    position: relative; overflow: hidden;
+  /* Card */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 32px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(124,58,237,0.03) 0%,transparent 60%); pointer-events:none; }
+  .card-title { font-family:'Syne',sans-serif; font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; display:flex; align-items:center; gap:10px; }
+  .card-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* Form */
+  .input-label { display:block; font-size:11px; font-family:'DM Mono',monospace; color:var(--muted); margin-bottom:7px; letter-spacing:0.05em; }
+  .input-field { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:13px 15px; color:var(--text); font-family:'DM Mono',monospace; font-size:13px; transition:all 0.2s; outline:none; }
+  .input-field:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(124,58,237,0.15); }
+  .input-hint { font-size:11px; color:var(--muted); margin-top:6px; }
+  .input-hint a { color:#a78bfa; text-decoration:none; }
+
+  /* Drop zone */
+  .drop-zone { border:2px dashed var(--border); border-radius:14px; padding:44px 24px; text-align:center; cursor:pointer; transition:all 0.3s; background:var(--surface); }
+  .drop-zone:hover,.drop-zone.drag-over { border-color:var(--accent); background:rgba(124,58,237,0.05); box-shadow:0 0 28px rgba(124,58,237,0.1); }
+  .drop-zone.has-file { border-color:var(--success); background:rgba(16,185,129,0.05); }
+  .drop-icon { font-size:44px; margin-bottom:14px; display:block; transition:transform 0.3s; }
+  .drop-zone:hover .drop-icon { transform:translateY(-4px); }
+  .drop-title { font-family:'Syne',sans-serif; font-size:17px; font-weight:700; margin-bottom:8px; }
+  .drop-sub { font-size:13px; color:var(--muted); }
+  .drop-sub span { color:#a78bfa; cursor:pointer; text-decoration:underline; }
+  #fileInput { display:none; }
+  .file-info { display:none; align-items:center; gap:12px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:11px 15px; margin-top:14px; font-size:13px; }
+  .file-info.show { display:flex; }
+  .file-name { font-family:'DM Mono',monospace; color:var(--success); flex:1; }
+  .file-remove { cursor:pointer; color:var(--muted); font-size:17px; }
+  .file-remove:hover { color:var(--error); }
+
+  /* Buttons */
+  .btn-primary { width:100%; padding:17px; background:linear-gradient(135deg,#7c3aed,#6d28d9); border:none; border-radius:12px; color:white; font-family:'Syne',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.3s; margin-top:22px; }
+  .btn-primary:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 8px 28px rgba(124,58,237,0.4); }
+  .btn-primary:disabled { opacity:0.5; cursor:not-allowed; }
+  .btn-download { display:flex; align-items:center; justify-content:center; gap:10px; flex:1; padding:15px; background:linear-gradient(135deg,#059669,#047857); border:none; border-radius:12px; color:white; font-family:'Syne',sans-serif; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.3s; }
+  .btn-download:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(5,150,105,0.4); }
+  .btn-reset { padding:15px 22px; background:transparent; border:1px solid var(--border); border-radius:12px; color:var(--muted); font-size:13px; cursor:pointer; transition:all 0.2s; font-family:'Inter',sans-serif; white-space:nowrap; }
+  .btn-reset:hover { border-color:var(--muted); color:var(--text); }
+
+  /* Progress */
+  #progressSection { display:none; }
+  #progressSection.show { display:block; }
+  .prog-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .prog-label { font-family:'DM Mono',monospace; font-size:12px; color:var(--muted); }
+  .prog-pct { font-family:'DM Mono',monospace; font-size:12px; color:var(--accent2); }
+  .prog-bg { background:var(--surface); border-radius:100px; height:6px; overflow:hidden; margin-bottom:14px; }
+  .prog-fill { height:100%; background:linear-gradient(90deg,#7c3aed,#06b6d4); border-radius:100px; transition:width 0.5s ease; width:0%; }
+  .steps { display:flex; gap:8px; flex-wrap:wrap; }
+  .step { display:flex; align-items:center; gap:6px; font-size:11px; font-family:'DM Mono',monospace; padding:4px 10px; border-radius:100px; background:var(--surface); border:1px solid var(--border); color:var(--muted); transition:all 0.3s; }
+  .step.active { border-color:var(--accent); color:#a78bfa; background:rgba(124,58,237,0.1); }
+  .step.done { border-color:var(--success); color:var(--success); background:rgba(16,185,129,0.08); }
+  .step-dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
+  .step.active .step-dot { animation:pulse 1s infinite; }
+
+  /* Summary strip */
+  #summaryStrip { display:none; }
+  #summaryStrip.show { display:block; }
+  .strip-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .strip-chip { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
+  .chip-label { font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); font-family:'DM Mono',monospace; margin-bottom:5px; }
+  .chip-val { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; }
+  .summary-quote { font-size:13px; line-height:1.7; color:#94a3b8; background:var(--surface); border-left:3px solid var(--accent); padding:14px 18px; border-radius:0 10px 10px 0; margin-top:14px; }
+  .action-row { display:flex; gap:12px; margin-top:18px; }
+
+  /* Error */
+  .err { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:14px 18px; font-size:13px; color:#fca5a5; display:none; }
+  .err.show { display:block; }
+
+  /* ═══════════════════════════════════════════
+     RESULTS SECTION
+  ═══════════════════════════════════════════ */
+  #resultsSection { display:none; }
+  #resultsSection.show { display:block; }
+
+  .tab-bar { display:flex; gap:4px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:4px; margin-bottom:20px; }
+  .tab-btn { flex:1; padding:10px 6px; border:none; background:transparent; border-radius:10px; color:var(--muted); font-family:'Syne',sans-serif; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+  .tab-btn.active { background:var(--accent); color:white; box-shadow:0 4px 14px rgba(124,58,237,0.3); }
+  .tab-btn:hover:not(.active) { color:var(--text); background:var(--border); }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+
+  /* ── Spatial page view ─────────────────── */
+  .page-viewer-wrap { display:flex; flex-direction:column; gap:24px; }
+  .page-block-outer { border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+  .page-block-header { display:flex; align-items:center; justify-content:space-between; padding:12px 18px; background:var(--surface); border-bottom:1px solid var(--border); }
+  .page-num-badge { background:linear-gradient(135deg,#7c3aed,#6d28d9); color:white; border-radius:8px; padding:4px 14px; font-family:'DM Mono',monospace; font-size:12px; font-weight:500; }
+  .page-meta { font-size:11px; font-family:'DM Mono',monospace; color:var(--muted); }
+
+  /* The spatial canvas: a relatively-positioned div where text is placed absolutely */
+  .page-canvas-wrap { overflow-x:auto; background:#fafafa; }
+  .page-canvas {
+    position: relative;
+    background: white;
+    margin: 16px auto;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    border-radius: 4px;
   }
-  .card::before {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(124,58,237,0.03) 0%, transparent 60%);
-    pointer-events: none;
+  .text-block {
+    position: absolute;
+    white-space: nowrap;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #111;
+    line-height: 1.3;
+    cursor: default;
+    padding: 1px 2px;
+    border-radius: 2px;
+    transition: background 0.15s;
   }
-  .card-title {
-    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600;
-    letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
-    margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+  .text-block:hover { background: rgba(124,58,237,0.08); }
+  .table-block {
+    position: absolute;
+    border-collapse: collapse;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
   }
-  .card-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-
-  /* ── Inputs ── */
-  .input-label { display: block; font-size: 12px; font-family: 'DM Mono', monospace; color: var(--muted); margin-bottom: 8px; letter-spacing: 0.05em; }
-  .input-field {
-    width: 100%; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 14px 16px; color: var(--text);
-    font-family: 'DM Mono', monospace; font-size: 13px; transition: all 0.2s; outline: none;
+  .table-block th, .table-block td {
+    border: 1px solid #ccc;
+    padding: 2px 6px;
+    white-space: nowrap;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
-  .input-hint { font-size: 11px; color: var(--muted); margin-top: 6px; }
-  .input-hint a { color: #a78bfa; text-decoration: none; }
-  .input-hint a:hover { text-decoration: underline; }
+  .table-block th { background: #1A1A2E; color: white; font-weight: bold; }
+  .table-block tr:nth-child(even) td { background: #f0f4ff; }
 
-  /* ── Drop zone ── */
-  .drop-zone {
-    border: 2px dashed var(--border); border-radius: 16px; padding: 48px 24px;
-    text-align: center; cursor: pointer; transition: all 0.3s;
-    background: var(--surface); position: relative; overflow: hidden;
-  }
-  .drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: rgba(124,58,237,0.05); box-shadow: 0 0 30px rgba(124,58,237,0.1); }
-  .drop-zone.has-file { border-color: var(--success); background: rgba(16,185,129,0.05); }
-  .drop-icon { font-size: 48px; margin-bottom: 16px; display: block; transition: transform 0.3s; }
-  .drop-zone:hover .drop-icon { transform: translateY(-4px); }
-  .drop-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-  .drop-sub { font-size: 13px; color: var(--muted); }
-  .drop-sub span { color: #a78bfa; cursor: pointer; text-decoration: underline; }
-  #fileInput { display: none; }
-  .file-info { display: none; align-items: center; gap: 12px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 12px 16px; margin-top: 16px; font-size: 13px; }
-  .file-info.show { display: flex; }
-  .file-name { font-family: 'DM Mono', monospace; color: var(--success); flex: 1; }
-  .file-remove { cursor: pointer; color: var(--muted); font-size: 18px; transition: color 0.2s; }
-  .file-remove:hover { color: var(--error); }
+  /* ── AI Analysis tab ────────────────────── */
+  .ai-section { margin-bottom:20px; }
+  .ai-sec-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  .fact-grid { display:flex; flex-direction:column; gap:8px; }
+  .fact-row { display:flex; gap:12px; align-items:flex-start; background:var(--surface); border-radius:10px; padding:12px 16px; border-left:3px solid var(--accent); }
+  .fact-cat { font-size:10px; font-family:'DM Mono',monospace; color:var(--accent2); text-transform:uppercase; min-width:72px; margin-top:2px; }
+  .fact-txt { font-size:13px; color:var(--text); line-height:1.5; flex:1; }
+  .fact-pg { font-size:10px; font-family:'DM Mono',monospace; color:var(--muted); white-space:nowrap; margin-top:2px; }
+  .ent-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; }
+  .ent-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:13px 15px; transition:all 0.2s; }
+  .ent-card:hover { border-color:var(--accent); transform:translateY(-2px); }
+  .ent-name { font-size:13px; font-weight:600; color:var(--text); margin-bottom:3px; }
+  .ent-type { font-size:10px; font-family:'DM Mono',monospace; color:var(--accent2); margin-bottom:4px; }
+  .ent-ctx { font-size:11px; color:var(--muted); line-height:1.4; }
+  .topic-list { display:flex; flex-direction:column; gap:8px; }
+  .topic-row { display:flex; align-items:center; gap:14px; padding:13px 16px; background:var(--surface); border-radius:10px; border-left:3px solid #7c3aed; }
+  .topic-num { font-family:'DM Mono',monospace; font-size:11px; color:var(--accent); min-width:22px; }
+  .topic-txt { font-size:13px; color:var(--text); }
+  .action-list { display:flex; flex-direction:column; gap:8px; }
+  .action-row2 { display:flex; align-items:flex-start; gap:12px; padding:13px 16px; background:var(--surface); border-radius:10px; border-left:3px solid #10b981; }
+  .action-icon { font-size:14px; margin-top:1px; }
+  .action-txt { font-size:13px; color:var(--text); line-height:1.55; }
+  .empty { text-align:center; padding:32px; color:var(--muted); font-size:13px; }
 
-  /* ── Buttons ── */
-  .btn-process {
-    width: 100%; padding: 18px;
-    background: linear-gradient(135deg, #7c3aed, #6d28d9);
-    border: none; border-radius: 12px; color: white;
-    font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700;
-    letter-spacing: 0.02em; cursor: pointer; transition: all 0.3s;
-    position: relative; overflow: hidden; margin-top: 24px;
-  }
-  .btn-process::before {
-    content: ''; position: absolute; top: 0; left: -100%;
-    width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-    transition: left 0.5s;
-  }
-  .btn-process:hover:not(:disabled)::before { left: 100%; }
-  .btn-process:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,58,237,0.4); }
-  .btn-process:disabled { opacity: 0.5; cursor: not-allowed; }
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 
-  /* ── Progress ── */
-  #progressSection { display: none; }
-  #progressSection.show { display: block; }
-  .progress-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .progress-label { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
-  .progress-pct { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--accent2); }
-  .progress-bar-bg { background: var(--surface); border-radius: 100px; height: 6px; overflow: hidden; margin-bottom: 16px; }
-  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #7c3aed, #06b6d4); border-radius: 100px; transition: width 0.5s ease; width: 0%; }
-  .status-steps { display: flex; gap: 8px; flex-wrap: wrap; }
-  .step { display: flex; align-items: center; gap: 6px; font-size: 11px; font-family: 'DM Mono', monospace; padding: 4px 10px; border-radius: 100px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); transition: all 0.3s; }
-  .step.active { border-color: var(--accent); color: #a78bfa; background: rgba(124,58,237,0.1); }
-  .step.done { border-color: var(--success); color: var(--success); background: rgba(16,185,129,0.08); }
-  .step-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-  .step.active .step-dot { animation: pulse 1s infinite; }
-
-  /* ── Quick summary strip ── */
-  #summaryStrip { display: none; }
-  #summaryStrip.show { display: block; }
-  .strip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 8px; }
-  .strip-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; }
-  .strip-chip-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 6px; }
-  .strip-chip-value { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; }
-  .summary-quote { font-size: 13px; line-height: 1.7; color: #94a3b8; background: var(--surface); border-left: 3px solid var(--accent); padding: 14px 18px; border-radius: 0 10px 10px 0; margin-top: 16px; }
-
-  /* ── Tab bar ── */
-  #groupedView { display: none; }
-  #groupedView.show { display: block; }
-  .tab-bar { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 4px; margin-bottom: 24px; }
-  .tab-btn {
-    flex: 1; padding: 10px 8px; border: none; background: transparent;
-    border-radius: 10px; color: var(--muted); font-family: 'Syne', sans-serif;
-    font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-    letter-spacing: 0.03em;
-  }
-  .tab-btn.active { background: var(--accent); color: white; box-shadow: 0 4px 15px rgba(124,58,237,0.3); }
-  .tab-btn:hover:not(.active) { color: var(--text); background: var(--border); }
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
-
-  /* ── Page groups ── */
-  .page-group { margin-bottom: 16px; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
-  .page-group-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 20px; background: var(--surface); cursor: pointer;
-    transition: background 0.2s; user-select: none;
-  }
-  .page-group-header:hover { background: rgba(124,58,237,0.08); }
-  .page-group-header.open { background: rgba(124,58,237,0.1); border-bottom: 1px solid var(--border); }
-  .page-group-title { display: flex; align-items: center; gap: 12px; }
-  .page-badge {
-    background: linear-gradient(135deg, #7c3aed, #6d28d9);
-    color: white; border-radius: 8px; padding: 4px 12px;
-    font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500;
-  }
-  .page-preview { font-size: 12px; color: var(--muted); max-width: 500px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .page-tags { display: flex; gap: 6px; align-items: center; }
-  .mini-tag { font-size: 10px; font-family: 'DM Mono', monospace; padding: 2px 8px; border-radius: 100px; border: 1px solid var(--border); color: var(--muted); }
-  .chevron { color: var(--muted); font-size: 12px; transition: transform 0.3s; }
-  .page-group-header.open .chevron { transform: rotate(180deg); }
-  .page-group-body { padding: 20px; background: var(--card); display: none; }
-  .page-group-body.open { display: block; }
-  .page-text { font-size: 12px; line-height: 1.8; color: #94a3b8; font-family: 'DM Mono', monospace; white-space: pre-wrap; background: var(--surface); padding: 16px; border-radius: 10px; max-height: 200px; overflow-y: auto; margin-bottom: 16px; }
-  .page-facts { display: flex; flex-direction: column; gap: 8px; }
-  .page-fact-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 14px; background: var(--surface); border-radius: 8px; border-left: 3px solid var(--accent); }
-  .fact-cat { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--accent2); text-transform: uppercase; white-space: nowrap; margin-top: 2px; min-width: 70px; }
-  .fact-text { font-size: 12px; color: var(--text); line-height: 1.5; }
-  .page-entities-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-  .entity-pill {
-    display: flex; align-items: center; gap: 6px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 100px; padding: 5px 12px; font-size: 11px;
-  }
-  .entity-pill-name { color: var(--text); font-weight: 500; }
-  .entity-pill-type { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 10px; }
-  .section-mini-title { font-size: 11px; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; margin-top: 16px; }
-
-  /* ── Category groups ── */
-  .cat-group { margin-bottom: 20px; }
-  .cat-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-  .cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .cat-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
-  .cat-count { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 2px 10px; }
-  .cat-facts-grid { display: flex; flex-direction: column; gap: 8px; }
-  .cat-fact-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; transition: border-color 0.2s; }
-  .cat-fact-card:hover { border-color: var(--accent); }
-  .cat-fact-text { font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 6px; }
-  .cat-fact-meta { display: flex; gap: 10px; font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); }
-
-  /* ── Entity type groups ── */
-  .ent-type-group { margin-bottom: 24px; }
-  .ent-type-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-  .ent-type-icon { font-size: 18px; }
-  .ent-type-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
-  .ent-type-count { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
-  .ent-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-  .ent-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; transition: all 0.2s; }
-  .ent-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(124,58,237,0.1); }
-  .ent-card-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-  .ent-card-context { font-size: 11px; color: var(--muted); line-height: 1.5; }
-
-  /* ── Download & reset ── */
-  .action-row { display: flex; gap: 12px; margin-top: 8px; }
-  .btn-download {
-    flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px;
-    padding: 16px; background: linear-gradient(135deg, #059669, #047857);
-    border: none; border-radius: 12px; color: white;
-    font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
-    cursor: pointer; text-decoration: none; transition: all 0.3s;
-  }
-  .btn-download:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(5,150,105,0.4); }
-  .btn-reset { padding: 16px 24px; background: transparent; border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; white-space: nowrap; }
-  .btn-reset:hover { border-color: var(--muted); color: var(--text); }
-
-  /* ── Error ── */
-  .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 16px 20px; font-size: 13px; color: #fca5a5; display: none; }
-  .error-box.show { display: block; }
-
-  /* ── Empty state ── */
-  .empty-state { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
-
-  /* ── Scrollbar ── */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  @media (max-width: 640px) {
-    .strip-grid { grid-template-columns: repeat(2,1fr); }
-    .tab-btn { font-size: 11px; padding: 8px 4px; }
-    .ent-cards-grid { grid-template-columns: 1fr; }
+  @media(max-width:640px) {
+    .strip-grid { grid-template-columns:repeat(2,1fr); }
+    .tab-btn { font-size:10px; padding:8px 3px; }
+    .ent-grid { grid-template-columns:1fr; }
   }
 </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
 
   <header>
-    <div class="badge">Groq AI · LLaMA 3.3 · PDF Intelligence</div>
-    <h1>PDF Categorizer</h1>
-    <p class="subtitle">Upload any PDF. Groq AI reads, analyzes, and exports structured data to Excel — in seconds.</p>
+    <div class="badge">Groq AI · LLaMA 3.3 · Spatial PDF</div>
+    <h1>PDF Intelligence</h1>
+    <p class="subtitle">Extracts content in its original spatial position — tables, columns, text blocks exactly as they appear.</p>
   </header>
 
-  <!-- Config -->
+  <!-- Upload card -->
   <div class="card" id="uploadCard">
-    <div class="card-title">01 · Configuration</div>
+    <div class="card-title">01 · API Key</div>
     <label class="input-label">GROQ API KEY</label>
     <input type="password" id="apiKey" class="input-field" value="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" placeholder="gsk_••••••••••••••••••••••••••••••">
-    <p class="input-hint">Get your free key at <a href="https://console.groq.com" target="_blank">console.groq.com</a> · Never stored.</p>
+    <p class="input-hint">Free key at <a href="https://console.groq.com" target="_blank">console.groq.com</a> · Never stored.</p>
 
-    <div style="margin-top:28px;">
-      <div class="card-title">02 · Upload PDF</div>
+    <div style="margin-top:26px">
+      <div class="card-title">02 · PDF File</div>
       <div class="drop-zone" id="dropZone">
         <span class="drop-icon">📄</span>
         <div class="drop-title">Drop your PDF here</div>
@@ -303,422 +233,330 @@
       </div>
       <input type="file" id="fileInput" accept=".pdf">
       <div class="file-info" id="fileInfo">
-        <span style="font-size:20px">✅</span>
+        <span style="font-size:18px">✅</span>
         <span class="file-name" id="fileName"></span>
-        <span id="fileSize" style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;"></span>
+        <span id="fileSize" style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace"></span>
         <span class="file-remove" onclick="removeFile()">✕</span>
       </div>
-      <div class="error-box" id="errorBox"></div>
-      <button class="btn-process" id="processBtn" onclick="startProcessing()" disabled>⚡ Analyze with Groq AI</button>
+      <div class="err" id="errBox"></div>
+      <button class="btn-primary" id="processBtn" onclick="startProcessing()" disabled>⚡ Analyze &amp; Extract Spatial Layout</button>
     </div>
   </div>
 
   <!-- Progress -->
   <div class="card" id="progressSection">
     <div class="card-title">03 · Processing</div>
-    <div class="progress-header">
-      <span class="progress-label" id="statusLabel">Initializing...</span>
-      <span class="progress-pct" id="progressPct">0%</span>
+    <div class="prog-hdr">
+      <span class="prog-label" id="statusLabel">Initializing...</span>
+      <span class="prog-pct" id="progPct">0%</span>
     </div>
-    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
-    <div class="status-steps">
-      <div class="step" id="step-extracting"><span class="step-dot"></span>Extracting Text</div>
+    <div class="prog-bg"><div class="prog-fill" id="progFill"></div></div>
+    <div class="steps">
+      <div class="step" id="step-extracting"><span class="step-dot"></span>Spatial Extraction</div>
       <div class="step" id="step-analyzing"><span class="step-dot"></span>AI Analysis</div>
       <div class="step" id="step-building_excel"><span class="step-dot"></span>Building Excel</div>
       <div class="step" id="step-complete"><span class="step-dot"></span>Complete</div>
     </div>
   </div>
 
-  <!-- Summary strip -->
+  <!-- Summary -->
   <div class="card" id="summaryStrip">
-    <div class="card-title">04 · Document Overview</div>
+    <div class="card-title">04 · Overview</div>
     <div class="strip-grid">
-      <div class="strip-chip"><div class="strip-chip-label">Type</div><div class="strip-chip-value" id="res-type">—</div></div>
-      <div class="strip-chip"><div class="strip-chip-label">Pages</div><div class="strip-chip-value" id="res-pages">—</div></div>
-      <div class="strip-chip"><div class="strip-chip-label">Sentiment</div><div class="strip-chip-value" id="res-sentiment">—</div></div>
-      <div class="strip-chip"><div class="strip-chip-label">Language</div><div class="strip-chip-value" id="res-lang">—</div></div>
+      <div class="strip-chip"><div class="chip-label">Type</div><div class="chip-val" id="r-type">—</div></div>
+      <div class="strip-chip"><div class="chip-label">Pages</div><div class="chip-val" id="r-pages">—</div></div>
+      <div class="strip-chip"><div class="chip-label">Sentiment</div><div class="chip-val" id="r-sent">—</div></div>
+      <div class="strip-chip"><div class="chip-label">Language</div><div class="chip-val" id="r-lang">—</div></div>
     </div>
-    <div class="summary-quote" id="res-summary"></div>
-    <div class="action-row" style="margin-top:20px;">
-      <a class="btn-download" id="downloadBtn" href="#">⬇ Download Excel</a>
+    <div class="summary-quote" id="r-summary"></div>
+    <div class="action-row">
+      <a class="btn-download" id="dlBtn" href="#">⬇ Download Spatial Excel</a>
       <button class="btn-reset" onclick="resetAll()">← New PDF</button>
     </div>
   </div>
 
-  <!-- Grouped view -->
-  <div id="groupedView">
+  <!-- Results tabs -->
+  <div id="resultsSection">
     <div class="tab-bar">
-      <button class="tab-btn active" onclick="switchTab('pages', this)">📄 By Page</button>
-      <button class="tab-btn" onclick="switchTab('categories', this)">🏷 By Category</button>
-      <button class="tab-btn" onclick="switchTab('entities', this)">👤 By Entity Type</button>
-      <button class="tab-btn" onclick="switchTab('topics', this)">💡 Topics & Actions</button>
+      <button class="tab-btn active" onclick="switchTab('spatial',this)">📐 Original Layout</button>
+      <button class="tab-btn" onclick="switchTab('facts',this)">📊 Key Facts</button>
+      <button class="tab-btn" onclick="switchTab('entities',this)">👤 Entities</button>
+      <button class="tab-btn" onclick="switchTab('topics',this)">💡 Topics</button>
     </div>
 
-    <!-- Tab: By Page -->
-    <div class="tab-panel active" id="tab-pages"></div>
+    <!-- Original Layout tab -->
+    <div class="tab-panel active" id="tab-spatial">
+      <div class="page-viewer-wrap" id="pageViewer"></div>
+    </div>
 
-    <!-- Tab: By Category -->
-    <div class="tab-panel" id="tab-categories"></div>
+    <!-- Key Facts tab -->
+    <div class="tab-panel" id="tab-facts">
+      <div class="card">
+        <div class="card-title">Key Facts &amp; Data Points</div>
+        <div class="fact-grid" id="factGrid"></div>
+      </div>
+    </div>
 
-    <!-- Tab: By Entity Type -->
-    <div class="tab-panel" id="tab-entities"></div>
+    <!-- Entities tab -->
+    <div class="tab-panel" id="tab-entities">
+      <div class="card">
+        <div class="card-title">Key Entities</div>
+        <div class="ent-grid" id="entGrid"></div>
+      </div>
+    </div>
 
-    <!-- Tab: Topics & Actions -->
-    <div class="tab-panel" id="tab-topics"></div>
-  </div>
-
-</div>
-
-<script>
-  let selectedFile = null;
-  let pollingInterval = null;
-  let currentJobId = null;
-  let globalJob = null;
-
-  const dropZone = document.getElementById('dropZone');
-  const fileInput = document.getElementById('fileInput');
-  const processBtn = document.getElementById('processBtn');
-
-  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
-  dropZone.addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
-
-  function handleFile(file) {
-    if (!file.name.toLowerCase().endsWith('.pdf')) { showError('Please upload a PDF file.'); return; }
-    selectedFile = file;
-    document.getElementById('fileName').textContent = file.name;
-    document.getElementById('fileSize').textContent = formatSize(file.size);
-    document.getElementById('fileInfo').classList.add('show');
-    dropZone.classList.add('has-file');
-    hideError(); checkReady();
-  }
-  function removeFile() {
-    selectedFile = null; fileInput.value = '';
-    document.getElementById('fileInfo').classList.remove('show');
-    dropZone.classList.remove('has-file'); checkReady();
-  }
-  function formatSize(b) { if(b<1024)return b+' B'; if(b<1048576)return(b/1024).toFixed(1)+' KB'; return(b/1048576).toFixed(1)+' MB'; }
-  document.getElementById('apiKey').addEventListener('input', checkReady);
-  function checkReady() { processBtn.disabled = !(selectedFile && document.getElementById('apiKey').value.trim().length > 10); }
-  function showError(msg) { const b=document.getElementById('errorBox'); b.textContent='⚠ '+msg; b.classList.add('show'); }
-  function hideError() { document.getElementById('errorBox').classList.remove('show'); }
-
-  async function startProcessing() {
-    const apiKey = document.getElementById('apiKey').value.trim();
-    if (!apiKey || !selectedFile) return;
-    hideError();
-    processBtn.disabled = true; processBtn.textContent = 'Uploading...';
-    document.getElementById('progressSection').classList.add('show');
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-    formData.append('api_key', apiKey);
-    try {
-      const res = await fetch('/upload', { method: 'POST', body: formData });
-      const data = await res.json();
-      if (!res.ok) { showError(data.error || 'Upload failed'); resetBtn(); return; }
-      currentJobId = data.job_id;
-      pollStatus();
-    } catch(e) { showError('Network error: ' + e.message); resetBtn(); }
-  }
-
-  function resetBtn() { processBtn.disabled = false; processBtn.textContent = '⚡ Analyze with Groq AI'; }
-
-  const statusLabels = { queued:'Queued...', extracting:'Extracting PDF text...', analyzing:'Running Groq AI analysis...', building_excel:'Building Excel workbook...', complete:'Done!', error:'Error' };
-
-  function updateSteps(status) {
-    const order = ['extracting','analyzing','building_excel','complete'];
-    const idx = order.indexOf(status);
-    order.forEach((s,i) => {
-      const el = document.getElementById('step-'+s);
-      if (!el) return;
-      el.classList.remove('active','done');
-      if (i<idx) el.classList.add('done');
-      else if (i===idx) el.classList.add('active');
-    });
-  }
-
-  function pollStatus() {
-    pollingInterval = setInterval(async () => {
-      try {
-        const res = await fetch('/status/' + currentJobId);
-        const job = await res.json();
-        document.getElementById('statusLabel').textContent = statusLabels[job.status] || job.status;
-        document.getElementById('progressPct').textContent = job.progress + '%';
-        document.getElementById('progressFill').style.width = job.progress + '%';
-        updateSteps(job.status);
-        if (job.status === 'complete') { clearInterval(pollingInterval); globalJob = job; showResults(job); }
-        else if (job.status === 'error') { clearInterval(pollingInterval); showError(job.error || 'Processing failed'); resetBtn(); }
-      } catch(e) { console.error(e); }
-    }, 1200);
-  }
-
-  function showResults(job) {
-    const a = job.analysis || {};
-    // Summary strip
-    document.getElementById('res-type').textContent = a.document_type || '—';
-    document.getElementById('res-pages').textContent = job.pages || '—';
-    document.getElementById('res-sentiment').textContent = a.sentiment || '—';
-    document.getElementById('res-lang').textContent = a.language || '—';
-    document.getElementById('res-summary').textContent = a.document_summary || '—';
-    document.getElementById('downloadBtn').href = '/download/' + currentJobId;
-    document.getElementById('summaryStrip').classList.add('show');
-    document.getElementById('groupedView').classList.add('show');
-    processBtn.textContent = '⚡ Analyze with Groq AI';
-    buildPageTab(job);
-    buildCategoryTab(a);
-    buildEntityTab(a);
-    buildTopicsTab(a);
-  }
-
-  // ── Tab: By Page ──────────────────────────────────────────────────────
-  function buildPageTab(job) {
-    const a = job.analysis || {};
-    const rawPages = job.raw_pages || [];
-    const facts = a.key_facts || [];
-    const entities = a.key_entities || [];
-    const container = document.getElementById('tab-pages');
-    container.innerHTML = '';
-
-    const totalPages = job.pages || 0;
-    if (totalPages === 0) { container.innerHTML = '<div class="empty-state">No page data available.</div>'; return; }
-
-    for (let p = 1; p <= totalPages; p++) {
-      const pageRaw = rawPages.find(r => r.page === p) || {};
-      const pageFacts = facts.filter(f => f.page == p);
-      // guess entities on this page from context keywords in text
-      const pageText = (pageRaw.text || '').toLowerCase();
-      const pageEnts = entities.filter(e => pageText.includes((e.name||'').toLowerCase()));
-
-      const group = document.createElement('div');
-      group.className = 'page-group';
-
-      const previewText = (pageRaw.text || 'No text extracted').substring(0, 90);
-
-      group.innerHTML = `
-        <div class="page-group-header ${p===1?'open':''}" onclick="togglePage(this)">
-          <div class="page-group-title">
-            <span class="page-badge">Page ${p}</span>
-            <span class="page-preview">${escHtml(previewText)}${pageRaw.text&&pageRaw.text.length>90?'…':''}</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div class="page-tags">
-              ${pageFacts.length ? `<span class="mini-tag">${pageFacts.length} facts</span>` : ''}
-              ${pageEnts.length ? `<span class="mini-tag">${pageEnts.length} entities</span>` : ''}
-              ${pageRaw.tables ? `<span class="mini-tag">table</span>` : ''}
-            </div>
-            <span class="chevron">▼</span>
-          </div>
-        </div>
-        <div class="page-group-body ${p===1?'open':''}">
-          ${pageRaw.text ? `
-            <div class="section-mini-title">Raw Text</div>
-            <div class="page-text">${escHtml(pageRaw.text)}</div>
-          ` : ''}
-          ${pageRaw.tables ? `
-            <div class="section-mini-title">Table Data</div>
-            <div class="page-text" style="color:#06b6d4">${escHtml(pageRaw.tables)}</div>
-          ` : ''}
-          ${pageFacts.length ? `
-            <div class="section-mini-title">Facts Found on This Page</div>
-            <div class="page-facts">
-              ${pageFacts.map(f=>`
-                <div class="page-fact-item">
-                  <span class="fact-cat">${escHtml(f.category||'General')}</span>
-                  <span class="fact-text">${escHtml(f.fact)}</span>
-                </div>`).join('')}
-            </div>
-          ` : ''}
-          ${pageEnts.length ? `
-            <div class="section-mini-title">Entities Mentioned</div>
-            <div class="page-entities-row">
-              ${pageEnts.map(e=>`
-                <div class="entity-pill">
-                  <span class="entity-pill-name">${escHtml(e.name)}</span>
-                  <span class="entity-pill-type">${escHtml(e.type)}</span>
-                </div>`).join('')}
-            </div>
-          ` : ''}
-          ${!pageRaw.text && !pageFacts.length ? '<div style="color:var(--muted);font-size:12px;padding:8px 0">No content extracted for this page.</div>' : ''}
-        </div>
-      `;
-      container.appendChild(group);
-    }
-  }
-
-  function togglePage(header) {
-    header.classList.toggle('open');
-    header.nextElementSibling.classList.toggle('open');
-  }
-
-  // ── Tab: By Category ─────────────────────────────────────────────────
-  function buildCategoryTab(a) {
-    const facts = a.key_facts || [];
-    const container = document.getElementById('tab-categories');
-    container.innerHTML = '';
-
-    const catColors = {
-      Financial: '#10b981', Technical: '#06b6d4', Legal: '#f59e0b',
-      General: '#8b5cf6', Date: '#ec4899', Contact: '#3b82f6', Other: '#64748b'
-    };
-    const catIcons = {
-      Financial:'💰', Technical:'⚙️', Legal:'⚖️', General:'📌', Date:'📅', Contact:'📞', Other:'📎'
-    };
-
-    const grouped = {};
-    facts.forEach(f => {
-      const cat = f.category || 'General';
-      if (!grouped[cat]) grouped[cat] = [];
-      grouped[cat].push(f);
-    });
-
-    if (Object.keys(grouped).length === 0) {
-      container.innerHTML = '<div class="empty-state">No categorized facts found.</div>'; return;
-    }
-
-    // Sort categories by count desc
-    const sorted = Object.entries(grouped).sort((a,b) => b[1].length - a[1].length);
-
-    sorted.forEach(([cat, catFacts]) => {
-      const color = catColors[cat] || catColors.Other;
-      const icon = catIcons[cat] || catIcons.Other;
-      const div = document.createElement('div');
-      div.className = 'cat-group';
-      div.innerHTML = `
-        <div class="cat-header">
-          <div class="cat-dot" style="background:${color}"></div>
-          <span style="font-size:16px">${icon}</span>
-          <span class="cat-title">${escHtml(cat)}</span>
-          <span class="cat-count">${catFacts.length} item${catFacts.length!==1?'s':''}</span>
-        </div>
-        <div class="cat-facts-grid">
-          ${catFacts.map(f=>`
-            <div class="cat-fact-card" style="border-left:3px solid ${color}">
-              <div class="cat-fact-text">${escHtml(f.fact)}</div>
-              <div class="cat-fact-meta">
-                <span>Page ${f.page||'?'}</span>
-                <span>${escHtml(f.category||'General')}</span>
-              </div>
-            </div>`).join('')}
-        </div>
-      `;
-      container.appendChild(div);
-    });
-  }
-
-  // ── Tab: By Entity Type ───────────────────────────────────────────────
-  function buildEntityTab(a) {
-    const entities = a.key_entities || [];
-    const container = document.getElementById('tab-entities');
-    container.innerHTML = '';
-
-    const typeIcons = {
-      Person:'🧑', Organization:'🏢', Location:'📍', Date:'📅',
-      Amount:'💵', Product:'📦', Other:'🔷'
-    };
-
-    const grouped = {};
-    entities.forEach(e => {
-      const t = e.type || 'Other';
-      if (!grouped[t]) grouped[t] = [];
-      grouped[t].push(e);
-    });
-
-    if (Object.keys(grouped).length === 0) {
-      container.innerHTML = '<div class="empty-state">No entities found.</div>'; return;
-    }
-
-    const sorted = Object.entries(grouped).sort((a,b) => b[1].length - a[1].length);
-
-    sorted.forEach(([type, ents]) => {
-      const icon = typeIcons[type] || typeIcons.Other;
-      const div = document.createElement('div');
-      div.className = 'ent-type-group';
-      div.innerHTML = `
-        <div class="ent-type-header">
-          <span class="ent-type-icon">${icon}</span>
-          <span class="ent-type-title">${escHtml(type)}</span>
-          <span class="ent-type-count">${ents.length} found</span>
-        </div>
-        <div class="ent-cards-grid">
-          ${ents.map(e=>`
-            <div class="ent-card">
-              <div class="ent-card-name">${escHtml(e.name)}</div>
-              <div class="ent-card-context">${escHtml(e.context||'')}</div>
-            </div>`).join('')}
-        </div>
-      `;
-      container.appendChild(div);
-    });
-  }
-
-  // ── Tab: Topics & Actions ─────────────────────────────────────────────
-  function buildTopicsTab(a) {
-    const topics = a.main_topics || [];
-    const actions = a.action_items || [];
-    const container = document.getElementById('tab-topics');
-
-    container.innerHTML = `
-      <div class="card" style="margin-bottom:16px;">
+    <!-- Topics tab -->
+    <div class="tab-panel" id="tab-topics">
+      <div class="card" style="margin-bottom:16px">
         <div class="card-title">Main Topics</div>
-        ${topics.length ? `
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            ${topics.map((t,i)=>`
-              <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--surface);border-radius:10px;border-left:3px solid #7c3aed">
-                <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);min-width:20px">${String(i+1).padStart(2,'0')}</span>
-                <span style="font-size:14px;color:var(--text)">${escHtml(t)}</span>
-              </div>`).join('')}
-          </div>
-        ` : '<div class="empty-state">No topics extracted.</div>'}
+        <div class="topic-list" id="topicList"></div>
       </div>
       <div class="card">
-        <div class="card-title">Action Items & Recommendations</div>
-        ${actions.length ? `
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            ${actions.map((ac,i)=>`
-              <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 18px;background:var(--surface);border-radius:10px;border-left:3px solid #10b981">
-                <span style="font-size:16px;margin-top:1px">➤</span>
-                <span style="font-size:13px;color:var(--text);line-height:1.6">${escHtml(ac)}</span>
-              </div>`).join('')}
-          </div>
-        ` : '<div class="empty-state">No action items found.</div>'}
+        <div class="card-title">Action Items</div>
+        <div class="action-list" id="actionList"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+let selectedFile = null, pollingInterval = null, currentJobId = null;
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const processBtn = document.getElementById('processBtn');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+dropZone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => { if(e.target.files[0]) handleFile(e.target.files[0]); });
+
+function handleFile(f) {
+  if (!f.name.toLowerCase().endsWith('.pdf')) { showErr('Please upload a PDF file.'); return; }
+  selectedFile = f;
+  document.getElementById('fileName').textContent = f.name;
+  document.getElementById('fileSize').textContent = fmtSize(f.size);
+  document.getElementById('fileInfo').classList.add('show');
+  dropZone.classList.add('has-file');
+  hideErr(); checkReady();
+}
+function removeFile() {
+  selectedFile = null; fileInput.value = '';
+  document.getElementById('fileInfo').classList.remove('show');
+  dropZone.classList.remove('has-file'); checkReady();
+}
+function fmtSize(b) { if(b<1024)return b+' B'; if(b<1048576)return(b/1024).toFixed(1)+' KB'; return(b/1048576).toFixed(1)+' MB'; }
+document.getElementById('apiKey').addEventListener('input', checkReady);
+function checkReady() { processBtn.disabled = !(selectedFile && document.getElementById('apiKey').value.trim().length > 10); }
+function showErr(m) { const b=document.getElementById('errBox'); b.textContent='⚠ '+m; b.classList.add('show'); }
+function hideErr() { document.getElementById('errBox').classList.remove('show'); }
+
+async function startProcessing() {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  if (!apiKey || !selectedFile) return;
+  hideErr(); processBtn.disabled = true; processBtn.textContent = 'Uploading...';
+  document.getElementById('progressSection').classList.add('show');
+  const fd = new FormData();
+  fd.append('file', selectedFile); fd.append('api_key', apiKey);
+  try {
+    const res = await fetch('/upload', { method:'POST', body:fd });
+    const data = await res.json();
+    if (!res.ok) { showErr(data.error||'Upload failed'); resetBtn(); return; }
+    currentJobId = data.job_id; pollStatus();
+  } catch(e) { showErr('Network error: '+e.message); resetBtn(); }
+}
+function resetBtn() { processBtn.disabled = false; processBtn.textContent = '⚡ Analyze & Extract Spatial Layout'; }
+
+const STATUS_LABELS = { queued:'Queued...', extracting:'Extracting spatial layout...', analyzing:'AI analysis...', building_excel:'Building Excel...', complete:'Done!', error:'Error' };
+
+function updateSteps(st) {
+  const order = ['extracting','analyzing','building_excel','complete'];
+  const idx = order.indexOf(st);
+  order.forEach((s,i) => {
+    const el = document.getElementById('step-'+s);
+    if (!el) return;
+    el.classList.remove('active','done');
+    if (i<idx) el.classList.add('done');
+    else if (i===idx) el.classList.add('active');
+  });
+}
+
+function pollStatus() {
+  pollingInterval = setInterval(async () => {
+    try {
+      const res = await fetch('/status/'+currentJobId);
+      const job = await res.json();
+      document.getElementById('statusLabel').textContent = STATUS_LABELS[job.status]||job.status;
+      document.getElementById('progPct').textContent = job.progress+'%';
+      document.getElementById('progFill').style.width = job.progress+'%';
+      updateSteps(job.status);
+      if (job.status==='complete') { clearInterval(pollingInterval); showResults(job); }
+      else if (job.status==='error') { clearInterval(pollingInterval); showErr((job.error||'Processing failed').split('\n')[0]); resetBtn(); }
+    } catch(e) { console.error(e); }
+  }, 1200);
+}
+
+function showResults(job) {
+  const a = job.analysis || {};
+  document.getElementById('r-type').textContent = a.document_type||'—';
+  document.getElementById('r-pages').textContent = job.pages||'—';
+  document.getElementById('r-sent').textContent = a.sentiment||'—';
+  document.getElementById('r-lang').textContent = a.language||'—';
+  document.getElementById('r-summary').textContent = a.document_summary||'—';
+  document.getElementById('dlBtn').href = '/download/'+currentJobId;
+  document.getElementById('summaryStrip').classList.add('show');
+  document.getElementById('resultsSection').classList.add('show');
+  processBtn.textContent = '⚡ Analyze & Extract Spatial Layout';
+
+  renderSpatialPages(job.spatial_pages || []);
+  renderFacts(a.key_facts || []);
+  renderEntities(a.key_entities || []);
+  renderTopics(a.main_topics || [], a.action_items || []);
+}
+
+// ── SPATIAL PAGE RENDERER ─────────────────────────────────────────────────
+function renderSpatialPages(pages) {
+  const viewer = document.getElementById('pageViewer');
+  viewer.innerHTML = '';
+
+  // Scale factor: we render at a fixed display width
+  const DISPLAY_W = 780; // px
+
+  pages.forEach(p => {
+    const scale = DISPLAY_W / p.width;
+    const displayH = p.height * scale;
+
+    const outer = document.createElement('div');
+    outer.className = 'page-block-outer';
+
+    // Header
+    outer.innerHTML = `
+      <div class="page-block-header">
+        <span class="page-num-badge">Page ${p.page}</span>
+        <span class="page-meta">${p.blocks.length} text block${p.blocks.length!==1?'s':''} · ${p.tables.length} table${p.tables.length!==1?'s':''}</span>
       </div>
     `;
-  }
 
-  function switchTab(name, btn) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-'+name).classList.add('active');
-  }
+    const canvasWrap = document.createElement('div');
+    canvasWrap.className = 'page-canvas-wrap';
 
-  function escHtml(str) {
-    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+    const canvas = document.createElement('div');
+    canvas.className = 'page-canvas';
+    canvas.style.width  = DISPLAY_W + 'px';
+    canvas.style.height = displayH + 'px';
 
-  function resetAll() {
-    removeFile();
-    currentJobId = null; globalJob = null;
-    if (pollingInterval) clearInterval(pollingInterval);
-    document.getElementById('progressSection').classList.remove('show');
-    document.getElementById('summaryStrip').classList.remove('show');
-    document.getElementById('groupedView').classList.remove('show');
-    document.getElementById('progressFill').style.width = '0%';
-    document.getElementById('progressPct').textContent = '0%';
-    document.getElementById('statusLabel').textContent = 'Initializing...';
-    processBtn.disabled = true;
-    processBtn.textContent = '⚡ Analyze with Groq AI';
-    hideError();
-    ['extracting','analyzing','building_excel','complete'].forEach(s => {
-      const el = document.getElementById('step-'+s);
-      if (el) el.classList.remove('active','done');
+    // ── Place text blocks
+    p.blocks.forEach(block => {
+      block.lines.forEach(line => {
+        const el = document.createElement('div');
+        el.className = 'text-block';
+        el.textContent = line.text;
+
+        // Font size heuristic from line height
+        const lineH = (line.y1 - line.y0) * scale;
+        const fs = Math.max(7, Math.min(14, lineH * 0.85));
+
+        el.style.left   = (line.x0 * scale) + 'px';
+        el.style.top    = (line.y0 * scale) + 'px';
+        el.style.fontSize = fs + 'px';
+        el.title = line.text; // tooltip on hover
+
+        canvas.appendChild(el);
+      });
     });
-    // Reset tabs
-    document.querySelectorAll('.tab-btn').forEach((b,i) => { b.classList.toggle('active', i===0); });
-    document.querySelectorAll('.tab-panel').forEach((p,i) => { p.classList.toggle('active', i===0); });
+
+    // ── Place tables
+    p.tables.forEach(tbl => {
+      if (!tbl.data || !tbl.data.length) return;
+      const bbox = tbl.bbox; // [x0, top, x1, bottom]
+      const table = document.createElement('table');
+      table.className = 'table-block';
+      table.style.left = (bbox[0] * scale) + 'px';
+      table.style.top  = (bbox[1] * scale) + 'px';
+
+      tbl.data.forEach((row, ri) => {
+        const tr = document.createElement('tr');
+        row.forEach(cell => {
+          const td = document.createElement(ri===0 ? 'th' : 'td');
+          td.textContent = String(cell||'').trim();
+          tr.appendChild(td);
+        });
+        table.appendChild(tr);
+      });
+
+      canvas.appendChild(table);
+    });
+
+    canvasWrap.appendChild(canvas);
+    outer.appendChild(canvasWrap);
+    viewer.appendChild(outer);
+  });
+
+  if (!pages.length) {
+    viewer.innerHTML = '<div class="empty">No spatial data extracted.</div>';
   }
+}
+
+// ── OTHER TABS ────────────────────────────────────────────────────────────
+function renderFacts(facts) {
+  const el = document.getElementById('factGrid');
+  if (!facts.length) { el.innerHTML = '<div class="empty">No key facts extracted.</div>'; return; }
+  const catColors = { Financial:'#10b981', Technical:'#06b6d4', Legal:'#f59e0b', General:'#8b5cf6', Date:'#ec4899', Contact:'#3b82f6' };
+  el.innerHTML = facts.map(f => `
+    <div class="fact-row" style="border-left-color:${catColors[f.category]||'#7c3aed'}">
+      <span class="fact-cat">${esc(f.category||'General')}</span>
+      <span class="fact-txt">${esc(f.fact)}</span>
+      <span class="fact-pg">p.${f.page||'?'}</span>
+    </div>`).join('');
+}
+
+function renderEntities(entities) {
+  const el = document.getElementById('entGrid');
+  if (!entities.length) { el.innerHTML = '<div class="empty">No entities found.</div>'; return; }
+  const typeColors = { Person:'#a78bfa', Organization:'#06b6d4', Location:'#10b981', Date:'#ec4899', Amount:'#f59e0b', Product:'#3b82f6' };
+  el.innerHTML = entities.map(e => `
+    <div class="ent-card">
+      <div class="ent-name">${esc(e.name)}</div>
+      <div class="ent-type" style="color:${typeColors[e.type]||'#64748b'}">${esc(e.type)}</div>
+      <div class="ent-ctx">${esc(e.context||'')}</div>
+    </div>`).join('');
+}
+
+function renderTopics(topics, actions) {
+  const tEl = document.getElementById('topicList');
+  const aEl = document.getElementById('actionList');
+  tEl.innerHTML = topics.length
+    ? topics.map((t,i)=>`<div class="topic-row"><span class="topic-num">${String(i+1).padStart(2,'0')}</span><span class="topic-txt">${esc(t)}</span></div>`).join('')
+    : '<div class="empty">No topics found.</div>';
+  aEl.innerHTML = actions.length
+    ? actions.map(a=>`<div class="action-row2"><span class="action-icon">➤</span><span class="action-txt">${esc(a)}</span></div>`).join('')
+    : '<div class="empty">No action items found.</div>';
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function resetAll() {
+  removeFile(); currentJobId = null;
+  if (pollingInterval) clearInterval(pollingInterval);
+  ['progressSection','summaryStrip','resultsSection'].forEach(id => document.getElementById(id).classList.remove('show'));
+  document.getElementById('progFill').style.width = '0%';
+  document.getElementById('progPct').textContent = '0%';
+  document.getElementById('statusLabel').textContent = 'Initializing...';
+  document.getElementById('pageViewer').innerHTML = '';
+  processBtn.disabled = true; processBtn.textContent = '⚡ Analyze & Extract Spatial Layout';
+  hideErr();
+  ['extracting','analyzing','building_excel','complete'].forEach(s => { const e=document.getElementById('step-'+s); if(e) e.classList.remove('active','done'); });
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.querySelectorAll('.tab-panel').forEach((p,i) => p.classList.toggle('active', i===0));
+}
 </script>
 </body>
 </html>
