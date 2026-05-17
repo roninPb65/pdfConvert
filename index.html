@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Intelligence — Powered by Groq AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #06060f;
+    --surface: #0d0d1a;
+    --card: #111122;
+    --border: #1e1e35;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --success: #10b981;
+    --error: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --glow: rgba(124, 58, 237, 0.15);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    animation: drift 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes drift {
+    from { transform: translate(0, 0); }
+    to { transform: translate(-60px, 60px); }
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(124,58,237,0.15);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: #a78bfa;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #7c3aed;
+    box-shadow: 0 0 8px #7c3aed;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 6vw, 58px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #e2e8f0 0%, #a78bfa 50%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Card */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(124,58,237,0.03) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* API Key input */
+  .input-group {
+    position: relative;
+    margin-bottom: 8px;
+  }
+
+  .input-label {
+    display: block;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  .input-field {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    transition: all 0.2s;
+    outline: none;
+  }
+
+  .input-field:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+  }
+
+  .input-hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .input-hint a { color: #a78bfa; text-decoration: none; }
+  .input-hint a:hover { text-decoration: underline; }
+
+  /* Drop zone */
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--surface);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(124,58,237,0.05);
+    box-shadow: 0 0 30px rgba(124,58,237,0.1);
+  }
+
+  .drop-zone.has-file {
+    border-color: var(--success);
+    background: rgba(16,185,129,0.05);
+  }
+
+  .drop-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+    transition: transform 0.3s;
+  }
+
+  .drop-zone:hover .drop-icon { transform: translateY(-4px); }
+
+  .drop-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .drop-sub {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .drop-sub span {
+    color: #a78bfa;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  #fileInput { display: none; }
+
+  .file-info {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-top: 16px;
+    font-size: 13px;
+  }
+
+  .file-info.show { display: flex; }
+  .file-icon { font-size: 20px; }
+  .file-name { font-family: 'DM Mono', monospace; color: var(--success); flex: 1; }
+  .file-remove { cursor: pointer; color: var(--muted); font-size: 18px; transition: color 0.2s; }
+  .file-remove:hover { color: var(--error); }
+
+  /* Button */
+  .btn-process {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    margin-top: 24px;
+  }
+
+  .btn-process::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.5s;
+  }
+
+  .btn-process:hover:not(:disabled)::before { left: 100%; }
+  .btn-process:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(124,58,237,0.4);
+  }
+  .btn-process:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Progress */
+  #progressSection { display: none; }
+  #progressSection.show { display: block; }
+
+  .progress-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .progress-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+  }
+
+  .progress-bar-bg {
+    background: var(--surface);
+    border-radius: 100px;
+    height: 6px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7c3aed, #06b6d4);
+    border-radius: 100px;
+    transition: width 0.5s ease;
+    width: 0%;
+    position: relative;
+  }
+
+  .progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 40px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  .status-steps {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    padding: 4px 10px;
+    border-radius: 100px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    transition: all 0.3s;
+  }
+
+  .step.active {
+    border-color: var(--accent);
+    color: #a78bfa;
+    background: rgba(124,58,237,0.1);
+  }
+
+  .step.done {
+    border-color: var(--success);
+    color: var(--success);
+    background: rgba(16,185,129,0.08);
+  }
+
+  .step-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .step.active .step-dot { animation: pulse 1s infinite; }
+
+  /* Results */
+  #resultsSection { display: none; }
+  #resultsSection.show { display: block; }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .result-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+
+  .result-chip-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 6px;
+  }
+
+  .result-chip-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .topics-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .topic-tag {
+    background: rgba(124,58,237,0.12);
+    border: 1px solid rgba(124,58,237,0.25);
+    color: #a78bfa;
+    border-radius: 100px;
+    padding: 4px 14px;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .summary-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #94a3b8;
+    background: var(--surface);
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 24px;
+  }
+
+  .btn-download {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #059669, #047857);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+
+  .btn-download:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(5,150,105,0.4);
+  }
+
+  .btn-reset {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .btn-reset:hover { border-color: var(--muted); color: var(--text); }
+
+  /* Error */
+  .error-box {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 13px;
+    color: #fca5a5;
+    display: none;
+  }
+
+  .error-box.show { display: block; }
+
+  /* Features row */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  .feature {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .feature-icon { font-size: 28px; margin-bottom: 10px; }
+  .feature-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .feature-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  @media (max-width: 600px) {
+    .result-grid { grid-template-columns: 1fr; }
+    .features { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">Groq AI · LLaMA 3.3 · PDF Intelligence</div>
+    <h1>PDF Categorizer</h1>
+    <p class="subtitle">Upload any PDF. Groq AI reads, analyzes, and exports structured data to Excel — in seconds.</p>
+  </header>
+
+  <!-- Config card -->
+  <div class="card">
+    <div class="card-title">01 · Configuration</div>
+    <label class="input-label">GROQ API KEY</label>
+    <div class="input-group">
+      <input type="password" id="apiKey" class="input-field" placeholder="gsk_••••••••••••••••••••••••••••••">
+    </div>
+    <p class="input-hint">Get your free key at <a href="https://console.groq.com" target="_blank">console.groq.com</a> · Your key is never stored.</p>
+  </div>
+
+  <!-- Upload card -->
+  <div class="card">
+    <div class="card-title">02 · Upload PDF</div>
+    <div class="drop-zone" id="dropZone">
+      <span class="drop-icon">📄</span>
+      <div class="drop-title">Drop your PDF here</div>
+      <div class="drop-sub">or <span onclick="document.getElementById('fileInput').click()">browse files</span></div>
+    </div>
+    <input type="file" id="fileInput" accept=".pdf">
+    <div class="file-info" id="fileInfo">
+      <span class="file-icon">✅</span>
+      <span class="file-name" id="fileName"></span>
+      <span class="file-size" id="fileSize" style="color: var(--muted); font-size: 12px; font-family: 'DM Mono', monospace;"></span>
+      <span class="file-remove" onclick="removeFile()">✕</span>
+    </div>
+    <div class="error-box" id="errorBox"></div>
+    <button class="btn-process" id="processBtn" onclick="startProcessing()" disabled>
+      ⚡ Analyze with Groq AI
+    </button>
+  </div>
+
+  <!-- Progress card -->
+  <div class="card" id="progressSection">
+    <div class="card-title">03 · Processing</div>
+    <div class="progress-header">
+      <span class="progress-label" id="statusLabel">Initializing...</span>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+    <div class="status-steps">
+      <div class="step" id="step-extracting">
+        <span class="step-dot"></span>Extracting Text
+      </div>
+      <div class="step" id="step-analyzing">
+        <span class="step-dot"></span>AI Analysis
+      </div>
+      <div class="step" id="step-building_excel">
+        <span class="step-dot"></span>Building Excel
+      </div>
+      <div class="step" id="step-complete">
+        <span class="step-dot"></span>Complete
+      </div>
+    </div>
+  </div>
+
+  <!-- Results card -->
+  <div class="card" id="resultsSection">
+    <div class="card-title">04 · Results</div>
+    <div class="result-grid">
+      <div class="result-chip">
+        <div class="result-chip-label">Document Type</div>
+        <div class="result-chip-value" id="res-type">—</div>
+      </div>
+      <div class="result-chip">
+        <div class="result-chip-label">Pages Analyzed</div>
+        <div class="result-chip-value" id="res-pages">—</div>
+      </div>
+      <div class="result-chip">
+        <div class="result-chip-label">Sentiment</div>
+        <div class="result-chip-value" id="res-sentiment">—</div>
+      </div>
+      <div class="result-chip">
+        <div class="result-chip-label">Language</div>
+        <div class="result-chip-value" id="res-lang">—</div>
+      </div>
+    </div>
+
+    <div style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:10px;">Topics Detected</div>
+    <div class="topics-list" id="res-topics"></div>
+
+    <div style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:10px;">Summary</div>
+    <div class="summary-text" id="res-summary"></div>
+
+    <a class="btn-download" id="downloadBtn" href="#">
+      ⬇ Download Excel Report
+    </a>
+    <button class="btn-reset" onclick="resetAll()">← Analyze Another PDF</button>
+  </div>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon">🧠</div>
+      <div class="feature-title">AI Categorization</div>
+      <div class="feature-desc">LLaMA 3.3 70B extracts entities, facts, topics, and sentiment automatically</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Structured Excel</div>
+      <div class="feature-desc">4 formatted sheets: Summary, Entities, Key Facts, and Raw Text by page</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Groq Speed</div>
+      <div class="feature-desc">Groq's LPU inference delivers analysis in seconds, not minutes</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let selectedFile = null;
+  let pollingInterval = null;
+  let currentJobId = null;
+
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const processBtn = document.getElementById('processBtn');
+
+  // Drag & drop
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  });
+  dropZone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+  function handleFile(file) {
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      showError('Please upload a PDF file.');
+      return;
+    }
+    selectedFile = file;
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileSize').textContent = formatSize(file.size);
+    document.getElementById('fileInfo').classList.add('show');
+    dropZone.classList.add('has-file');
+    hideError();
+    checkReady();
+  }
+
+  function removeFile() {
+    selectedFile = null;
+    fileInput.value = '';
+    document.getElementById('fileInfo').classList.remove('show');
+    dropZone.classList.remove('has-file');
+    checkReady();
+  }
+
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(1) + ' MB';
+  }
+
+  document.getElementById('apiKey').addEventListener('input', checkReady);
+
+  function checkReady() {
+    const ready = selectedFile && document.getElementById('apiKey').value.trim().length > 10;
+    processBtn.disabled = !ready;
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    box.textContent = '⚠ ' + msg;
+    box.classList.add('show');
+  }
+
+  function hideError() { document.getElementById('errorBox').classList.remove('show'); }
+
+  async function startProcessing() {
+    const apiKey = document.getElementById('apiKey').value.trim();
+    if (!apiKey || !selectedFile) return;
+
+    hideError();
+    processBtn.disabled = true;
+    processBtn.textContent = 'Uploading...';
+    document.getElementById('progressSection').classList.add('show');
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('api_key', apiKey);
+
+    try {
+      const res = await fetch('/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok) { showError(data.error || 'Upload failed'); resetBtn(); return; }
+      currentJobId = data.job_id;
+      pollStatus();
+    } catch(e) {
+      showError('Network error: ' + e.message);
+      resetBtn();
+    }
+  }
+
+  function resetBtn() {
+    processBtn.disabled = false;
+    processBtn.textContent = '⚡ Analyze with Groq AI';
+  }
+
+  const statusLabels = {
+    queued: 'Queued for processing...',
+    extracting: 'Extracting PDF text...',
+    analyzing: 'Running Groq AI analysis...',
+    building_excel: 'Building Excel workbook...',
+    complete: 'Done!',
+    error: 'Error occurred'
+  };
+
+  function updateSteps(status) {
+    const order = ['extracting', 'analyzing', 'building_excel', 'complete'];
+    const idx = order.indexOf(status);
+    order.forEach((s, i) => {
+      const el = document.getElementById('step-' + s);
+      if (!el) return;
+      el.classList.remove('active', 'done');
+      if (i < idx) el.classList.add('done');
+      else if (i === idx) el.classList.add('active');
+    });
+  }
+
+  function pollStatus() {
+    pollingInterval = setInterval(async () => {
+      try {
+        const res = await fetch('/status/' + currentJobId);
+        const job = await res.json();
+
+        const label = statusLabels[job.status] || job.status;
+        document.getElementById('statusLabel').textContent = label;
+        document.getElementById('progressPct').textContent = job.progress + '%';
+        document.getElementById('progressFill').style.width = job.progress + '%';
+        updateSteps(job.status);
+
+        if (job.status === 'complete') {
+          clearInterval(pollingInterval);
+          showResults(job);
+        } else if (job.status === 'error') {
+          clearInterval(pollingInterval);
+          showError(job.error || 'Processing failed');
+          resetBtn();
+        }
+      } catch(e) {
+        console.error(e);
+      }
+    }, 1200);
+  }
+
+  function showResults(job) {
+    const analysis = job.analysis || {};
+    document.getElementById('resultsSection').classList.add('show');
+    document.getElementById('res-type').textContent = analysis.document_type || '—';
+    document.getElementById('res-pages').textContent = job.pages || '—';
+    document.getElementById('res-sentiment').textContent = analysis.sentiment || '—';
+    document.getElementById('res-lang').textContent = analysis.language || '—';
+    document.getElementById('res-summary').textContent = analysis.document_summary || '—';
+
+    const topicsEl = document.getElementById('res-topics');
+    topicsEl.innerHTML = '';
+    (analysis.main_topics || []).forEach(t => {
+      const tag = document.createElement('span');
+      tag.className = 'topic-tag';
+      tag.textContent = t;
+      topicsEl.appendChild(tag);
+    });
+
+    document.getElementById('downloadBtn').href = '/download/' + currentJobId;
+    processBtn.textContent = '⚡ Analyze with Groq AI';
+  }
+
+  function resetAll() {
+    removeFile();
+    currentJobId = null;
+    if (pollingInterval) clearInterval(pollingInterval);
+    document.getElementById('progressSection').classList.remove('show');
+    document.getElementById('resultsSection').classList.remove('show');
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('progressPct').textContent = '0%';
+    document.getElementById('statusLabel').textContent = 'Initializing...';
+    processBtn.disabled = true;
+    processBtn.textContent = '⚡ Analyze with Groq AI';
+    hideError();
+    ['extracting','analyzing','building_excel','complete'].forEach(s => {
+      const el = document.getElementById('step-' + s);
+      if (el) el.classList.remove('active','done');
+    });
+  }
+</script>
+</body>
+</html>
